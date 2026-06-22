@@ -1,106 +1,26 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <title>Firebase Test</title>
+    <title>Firebase Test</title>
 </head>
-
 <body>
 
-<h1>KUROZENAKU Auth Test</h1>
+<h1>KUROZENAKU Firebase Test</h1>
 
-<input id="name" placeholder="Name">
-<br><br>
-
-<input id="email" placeholder="Email">
-<br><br>
-
-<input id="password" type="password" placeholder="Password">
-<br><br>
-
-<button id="registerBtn">
-Register
-</button>
-
-<button id="loginBtn">
-Login
-</button>
+<div id="status">
+    Connecting...
+</div>
 
 <script type="module">
 
-import {
-  registerUser,
-  loginUser
-} from "./js/services/auth.js";
+import { auth } from "./js/config/firebase.js";
 
-document
-.getElementById("registerBtn")
-.addEventListener("click", async () => {
+document.getElementById("status").innerText =
+    "Firebase Connected Successfully ✅";
 
-  try {
-
-    const name =
-      document.getElementById("name").value;
-
-    const email =
-      document.getElementById("email").value;
-
-    const password =
-      document.getElementById("password").value;
-
-    const user =
-      await registerUser(
-        name,
-        email,
-        password
-      );
-
-    alert(
-      "Registered: " +
-      user.email
-    );
-
-  } catch (error) {
-
-    alert(error.message);
-
-  }
-
-});
-
-document
-.getElementById("loginBtn")
-.addEventListener("click", async () => {
-
-  try {
-
-    const email =
-      document.getElementById("email").value;
-
-    const password =
-      document.getElementById("password").value;
-
-    const user =
-      await loginUser(
-        email,
-        password
-      );
-
-    alert(
-      "Logged in: " +
-      user.email
-    );
-
-  } catch (error) {
-
-    alert(error.message);
-
-  }
-
-});
+console.log(auth);
 
 </script>
 
 </body>
-
 </html>

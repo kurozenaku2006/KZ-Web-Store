@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUROZENAKU Register</title>
+
+    <style>
+        body{
+            font-family:Arial,sans-serif;
+            background:#111;
+            color:white;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+
+        .card{
+            width:350px;
+            padding:25px;
+            background:#1b1b1b;
+            border-radius:10px;
+        }
+
+        input{
+            width:100%;
+            padding:10px;
+            margin-top:10px;
+            margin-bottom:15px;
+            box-sizing:border-box;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            cursor:pointer;
+        }
+
+        #message{
+            margin-top:15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <h2>Create Account</h2>
+
+    <input
+        type="text"
+        id="name"
+        placeholder="Full Name">
+
+    <input
+        type="email"
+        id="email"
+        placeholder="Email">
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Password">
+
+    <button id="registerBtn">
+        Register
+    </button>
+
+    <div id="message"></div>
+
+</div>
+
+<script type="module">
+
+import { registerUser }
+from "./js/services/auth.js";
+
+const button =
+document.getElementById("registerBtn");
+
+button.addEventListener(
+"click",
+async ()=>{
+
+    const name =
+    document.getElementById("name").value;
+
+    const email =
+    document.getElementById("email").value;
+
+    const password =
+    document.getElementById("password").value;
+
+    try{
+
+        await registerUser(
+            name,
+            email,
+            password
+        );
+
+        document.getElementById("message")
+        .innerText =
+        "Registration Successful ✅";
+
+    }
+catch(error){
+
+    console.error(error);
+
+    document.getElementById("message")
+    .innerText =
+    error.code + " : " + error.message;
+
+}
+
+});
+
+</script>
+
+</body>
+</html>

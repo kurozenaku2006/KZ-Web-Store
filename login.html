@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUROZENAKU Login</title>
+
+<style>
+
+body{
+    background:#111;
+    color:white;
+    font-family:Arial,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.card{
+    width:350px;
+    background:#1b1b1b;
+    padding:25px;
+    border-radius:10px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    cursor:pointer;
+}
+
+#message{
+    margin-top:15px;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+<h2>Login</h2>
+
+<input
+    type="email"
+    id="email"
+    placeholder="Email">
+
+<input
+    type="password"
+    id="password"
+    placeholder="Password">
+
+<button id="loginBtn">
+    Login
+</button>
+
+<div id="message"></div>
+
+</div>
+
+<script type="module">
+
+import {
+    loginUser,
+    getUserData
+}
+from "./js/services/auth.js";
+
+document
+.getElementById("loginBtn")
+.addEventListener(
+"click",
+async ()=>{
+
+    const email =
+    document.getElementById("email").value;
+
+    const password =
+    document.getElementById("password").value;
+
+    try{
+
+        const user =
+        await loginUser(
+            email,
+            password
+        );
+
+        const userData =
+        await getUserData(
+            user.uid
+        );
+
+        if(
+            userData.role === "admin"
+        ){
+            window.location.href =
+            "/admin/dashboard.html";
+        }
+        else{
+            window.location.href =
+            "/customer/dashboard.html";
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        document
+        .getElementById("message")
+        .innerText =
+        error.code +
+        " : " +
+        error.message;
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
