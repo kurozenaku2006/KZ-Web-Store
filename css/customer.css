@@ -1,0 +1,28 @@
+body{
+    background:#0f1117;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+
+#catalogGrid{
+    display:grid;
+    grid-template-columns:
+    repeat(
+        auto-fit,
+        minmax(250px,1fr)
+    );
+
+    gap:20px;
+}
+
+.card{
+    background:#1e2230;
+    padding:20px;
+    border-radius:12px;
+}
+
+button{
+    padding:10px;
+    cursor:pointer;
+    margin-top:10px;
+}

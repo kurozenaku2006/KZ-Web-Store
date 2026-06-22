@@ -56,3 +56,21 @@ export async function deleteProduct(id){
     );
 
 }
+
+export async function getProductById(id){
+
+    const snapshot =
+    await getDocs(productsRef);
+
+    const products =
+    snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }));
+
+    return products.find(
+        product =>
+        product.id === id
+    );
+
+}

@@ -1,0 +1,73 @@
+import {
+    getProducts
+}
+from "../services/products.js";
+
+const catalogGrid =
+document.getElementById(
+    "catalogGrid"
+);
+
+async function loadCatalog(){
+
+    const products =
+    await getProducts();
+
+    catalogGrid.innerHTML = "";
+
+    const activeProducts =
+    products.filter(
+        product =>
+        product.status === "active"
+    );
+
+    if(
+        activeProducts.length === 0
+    ){
+
+        catalogGrid.innerHTML =
+        "<p>No Products Found</p>";
+
+        return;
+
+    }
+
+    activeProducts.forEach(
+    product => {
+
+        catalogGrid.innerHTML += `
+
+        <div class="card">
+
+            <h2>
+                ${product.name}
+            </h2>
+
+            <p>
+                ₹${product.price}
+            </p>
+
+            <p>
+                Stock:
+                ${product.stock}
+            </p>
+
+            <button
+            onclick="
+            location.href=
+            '/product.html?id=${product.id}'
+            ">
+
+                View Product
+
+            </button>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+loadCatalog();
