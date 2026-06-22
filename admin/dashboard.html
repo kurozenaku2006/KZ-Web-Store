@@ -1,8 +1,66 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+
+<title>
+Admin Dashboard
+</title>
+
+</head>
 <body>
 
-<h1>ADMIN DASHBOARD</h1>
+<div id="navbar"></div>
+
+<div id="sidebar"></div>
+
+<h1>
+Admin Dashboard
+</h1>
+
+<div id="cards">
+
+Revenue Card
+
+Orders Card
+
+Claims Card
+
+Customers Card
+
+</div>
+
+<div id="charts">
+
+Revenue Chart
+
+Sales Chart
+
+</div>
+
+<div id="activity">
+
+Recent Activity
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/components/navbar-loader.js"></script>
+<script src="/components/footer-loader.js"></script>
+<script src="/components/sidebar-loader.js"></script>
+
+<script type="module">
+
+import {
+    requireAdmin
+}
+from "/js/services/guard.js";
+
+await requireAdmin();
+
+</script>
 
 </body>
+
 </html>

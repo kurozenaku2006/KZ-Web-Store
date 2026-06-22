@@ -4,5 +4,16 @@
 
 <h1>CUSTOMER DASHBOARD</h1>
 
+<script type="module">
+
+import {
+    requireCustomer
+}
+from "/js/services/guard.js";
+
+await requireCustomer();
+
+</script>
+
 </body>
 </html>
