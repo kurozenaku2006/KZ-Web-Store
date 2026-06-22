@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Products Management
+</title>
+
+<link rel="stylesheet"
+href="/css/admin.css">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<div class="dashboard-layout">
+
+    <div id="sidebar"
+    class="sidebar"></div>
+
+    <div class="main-content">
+
+        <h1>
+            Products
+        </h1>
+
+        <br>
+
+        <input
+        id="name"
+        placeholder="Product Name">
+
+        <br><br>
+
+        <input
+        id="price"
+        placeholder="Price">
+
+        <br><br>
+
+        <input
+        id="stock"
+        placeholder="Stock">
+
+        <br><br>
+
+        <button id="addBtn">
+
+            Add Product
+
+        </button>
+
+        <hr>
+
+        <div id="productsList">
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/components/navbar-loader.js"></script>
+<script src="/components/footer-loader.js"></script>
+<script src="/components/sidebar-loader.js"></script>
+
+<script type="module"
+src="/js/admin/products.js">
+</script>
+
+<script type="module">
+
+import {
+requireAdmin
+}
+from "/js/services/guard.js";
+
+await requireAdmin();
+
+</script>
+
+</body>
+
+</html>

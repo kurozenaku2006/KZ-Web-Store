@@ -1,16 +1,14 @@
-export function renderRevenueCard(){
+export function customersCard(){
 
     return `
     
     <div class="card">
 
-        <h3>
-            Revenue
-        </h3>
+        <h3>Customers</h3>
 
-        <p>
-            ₹0
-        </p>
+        <div class="card-value">
+            0
+        </div>
 
     </div>
 
