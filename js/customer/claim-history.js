@@ -1,8 +1,13 @@
 import {
-    getAllClaims,
-    updateClaimStatus
+    createClaim,
+    getUserClaims
 }
 from "../services/claims.js";
+
+const submitBtn =
+document.getElementById(
+"submitClaimBtn"
+);
 
 const container =
 document.getElementById(
@@ -12,7 +17,7 @@ document.getElementById(
 async function loadClaims(){
 
     const claims =
-    await getAllClaims();
+    await getUserClaims();
 
     if(claims.length === 0){
 
@@ -51,22 +56,6 @@ async function loadClaims(){
                 ${claim.status}
             </p>
 
-            <br>
-
-            <button
-            onclick="approveClaim('${claim.id}')">
-
-                Approve
-
-            </button>
-
-            <button
-            onclick="rejectClaim('${claim.id}')">
-
-                Reject
-
-            </button>
-
         </div>
 
         <br>
@@ -77,28 +66,40 @@ async function loadClaims(){
 
 }
 
-window.approveClaim =
-async function(id){
+submitBtn.addEventListener(
+"click",
+async ()=>{
 
-    await updateClaimStatus(
-        id,
-        "approved"
+    await createClaim({
+
+        orderId:
+        document.getElementById(
+        "orderId"
+        ).value,
+
+        productId:
+        document.getElementById(
+        "productId"
+        ).value,
+
+        reason:
+        document.getElementById(
+        "reason"
+        ).value,
+
+        description:
+        document.getElementById(
+        "description"
+        ).value
+
+    });
+
+    alert(
+        "Claim Submitted"
     );
 
     loadClaims();
 
-}
-
-window.rejectClaim =
-async function(id){
-
-    await updateClaimStatus(
-        id,
-        "rejected"
-    );
-
-    loadClaims();
-
-}
+});
 
 loadClaims();

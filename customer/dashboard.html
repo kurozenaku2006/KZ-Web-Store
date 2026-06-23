@@ -1,8 +1,65 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Customer Dashboard</title>
+
+<link rel="stylesheet"
+href="/css/customer.css">
+
+</head>
+
 <body>
 
-<h1>CUSTOMER DASHBOARD</h1>
+<div id="navbar"></div>
+
+<div
+style="
+display:flex;
+min-height:100vh;
+">
+
+    <div
+    id="sidebar"
+    style="
+    width:250px;
+    padding:20px;
+    border-right:1px solid #ddd;
+    ">
+    </div>
+
+    <div
+    style="
+    flex:1;
+    padding:20px;
+    ">
+
+        <h1>
+            Customer Dashboard
+        </h1>
+
+        <div id="dashboardContainer">
+
+            Loading...
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/components/navbar-loader.js"></script>
+
+<script src="/components/footer-loader.js"></script>
+
+<script src="/components/customer-sidebar-loader.js"></script>
 
 <script type="module">
 
@@ -15,5 +72,11 @@ await requireCustomer();
 
 </script>
 
+<script
+type="module"
+src="/js/customer/dashboard.js">
+</script>
+
 </body>
+
 </html>

@@ -4,6 +4,11 @@ import {
 from "../services/products.js";
 
 import {
+    addToWishlist
+}
+from "../services/wishlist.js";
+
+import {
     addToCart
 }
 from "../services/cart.js";
@@ -95,18 +100,37 @@ async function loadProduct(){
 
             <br>
 
-            <button
-            onclick="
-            addProductToCart()
-            ">
+           <button
+onclick="addCurrentProductToWishlist()">
 
-                Add To Cart
+    Add To Wishlist
 
-            </button>
+</button>
+
+<br><br>
+
+<button>
+
+    Add To Cart
+
+</button>
 
         </div>
 
     `;
+
+}
+
+window.addCurrentProductToWishlist =
+async function(){
+
+    await addToWishlist(
+        productId
+    );
+
+    alert(
+        "Added To Wishlist"
+    );
 
 }
 
