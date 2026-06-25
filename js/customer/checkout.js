@@ -9,6 +9,22 @@ import {
 }
 from "../services/orders.js";
 
+import {
+    auth
+}
+from "../config/firebase.js";
+
+import {
+    addRewardPoints,
+    redeemRewardPoints
+}
+from "../services/rewards.js";
+
+import {
+    getUserData
+}
+from "../services/auth.js";
+
 const container =
 document.getElementById(
 "checkoutContainer"
@@ -36,27 +52,67 @@ async function loadCheckout(){
 
     });
 
-    container.innerHTML = `
+    const user =
+auth.currentUser;
 
-        <div class="card">
+const userData =
+user
+? await getUserData(
+    user.uid
+)
+: null;
 
-            <h2>
-                Total:
-                ₹${total}
-            </h2>
+const rewardPoints =
+userData?.rewardPoints || 0;
 
-            <br>
+  container.innerHTML = `
 
-            <button
-            onclick="placeOrder()">
+<div class="card">
 
-                Place Order
+    <h2>
+        Total:
+        ₹${total}
+    </h2>
 
-            </button>
+    <br>
 
-        </div>
+    <p>
 
-    `;
+        Available Reward Points:
+        ${rewardPoints}
+
+    </p>
+
+    <br>
+
+    <label>
+
+        Redeem Points
+
+    </label>
+
+    <br><br>
+
+    <input
+    id="redeemPoints"
+    type="number"
+    value="0"
+    min="0"
+    max="${rewardPoints}"
+    >
+
+    <br><br>
+
+    <button
+    onclick="placeOrder()">
+
+        Place Order
+
+    </button>
+
+</div>
+
+`;
 
 }
 
@@ -74,12 +130,76 @@ async function(){
 
     });
 
+  const redeemPoints =
+Number(
+    document.getElementById(
+        "redeemPoints"
+    ).value || 0
+);
+
+if(
+    redeemPoints > total
+){
+
+    alert(
+        "Cannot redeem more than order total"
+    );
+
+    return;
+
+}
+
+if(
+    redeemPoints > 0
+){
+
+    total =
+    total - redeemPoints;
+
+}
+
     await createOrder({
 
         items,
         total
 
     });
+
+    const rewardPoints =
+Math.floor(
+    total / 100
+);
+
+const user =
+auth.currentUser;
+
+if(user){
+
+    const redeemPoints =
+    Number(
+        document.getElementById(
+            "redeemPoints"
+        ).value || 0
+    );
+
+    if(
+        redeemPoints > 0
+    ){
+
+        await redeemRewardPoints(
+            user.uid,
+            redeemPoints
+        );
+
+    }
+
+    await addRewardPoints(
+        user.uid,
+        rewardPoints,
+        total
+    );
+
+}
 
     for(const item of items){
 

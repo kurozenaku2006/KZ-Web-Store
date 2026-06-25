@@ -21,7 +21,6 @@ async function loadCart(){
     if(items.length === 0){
 
         container.innerHTML =
-
         "<h3>Your cart is empty.</h3>";
 
         return;
@@ -75,6 +74,15 @@ async function loadCart(){
             Total:
             ₹${total}
         </h2>
+
+        <br>
+
+        <button
+        onclick="location.href='checkout.html'">
+
+            Proceed To Checkout
+
+        </button>
 
     </div>
 

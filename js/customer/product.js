@@ -109,7 +109,8 @@ onclick="addCurrentProductToWishlist()">
 
 <br><br>
 
-<button>
+<button
+onclick="addProductToCart()">
 
     Add To Cart
 

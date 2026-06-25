@@ -4,6 +4,21 @@ import {
 from "../config/firebase.js";
 
 import {
+    onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+import {
+    getUserData
+}
+from "../services/auth.js";
+
+import {
+    getRewardHistory
+}
+from "../services/rewards.js";
+
+import {
     getOrders
 }
 from "../services/orders.js";
@@ -31,6 +46,82 @@ async function loadDashboard(){
 
     const customerName =
     user?.email || "Customer";
+
+    const userData =
+user
+? await getUserData(
+    user.uid
+)
+: null;
+
+const rewardPoints =
+userData?.rewardPoints || 0;
+
+let currentTier = "Bronze";
+let nextTier = "Silver";
+let pointsToNext = 100 - rewardPoints;
+
+if(rewardPoints >= 100){
+
+    currentTier = "Silver";
+    nextTier = "Gold";
+    pointsToNext = 500 - rewardPoints;
+
+}
+
+if(rewardPoints >= 500){
+
+    currentTier = "Gold";
+    nextTier = "Platinum";
+    pointsToNext = 1000 - rewardPoints;
+
+}
+
+if(rewardPoints >= 1000){
+
+    currentTier = "Platinum";
+    nextTier = "MAX";
+    pointsToNext = 0;
+
+}
+
+const rewardHistory =
+user
+? await getRewardHistory(
+    user.uid
+)
+: [];
+
+let lifetimeEarned = 0;
+let lifetimeRedeemed = 0;
+
+rewardHistory.forEach(item => {
+
+    if(
+        item.type === "earned"
+    ){
+
+        lifetimeEarned +=
+        Number(
+            item.points || 0
+        );
+
+    }
+
+    if(
+        item.type === "redeemed"
+    ){
+
+        lifetimeRedeemed +=
+        Math.abs(
+            Number(
+                item.points || 0
+            )
+        );
+
+    }
+
+});
 
     let pending = 0;
     let approved = 0;
@@ -107,11 +198,32 @@ container.innerHTML = `
 
     <div class="stat-card">
 
-        <h3>Reward Points</h3>
+    <h3>
+        Reward Balance
+    </h3>
 
-        <h1>0</h1>
+    <h1>
+        ${rewardPoints}
+    </h1>
 
-    </div>
+</div>
+
+<div class="stat-card">
+
+    <h3>
+        Current Tier
+    </h3>
+
+    <h1>
+        ${currentTier}
+    </h1>
+
+    <small>
+        Next:
+        ${nextTier}
+    </small>
+
+</div>
 
     <div class="stat-card">
 
@@ -122,6 +234,61 @@ container.innerHTML = `
         </h1>
 
     </div>
+
+    <div class="stat-card">
+
+    <h3>
+        Lifetime Earned
+    </h3>
+
+    <h1>
+        ${lifetimeEarned}
+    </h1>
+
+</div>
+
+<div class="stat-card">
+
+    <h3>
+        Lifetime Redeemed
+    </h3>
+
+    <h1>
+        ${lifetimeRedeemed}
+    </h1>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="card">
+
+    <h2>
+        Reward Tier Progress
+    </h2>
+
+    <p>
+
+        Current Tier:
+        ${currentTier}
+
+    </p>
+
+    <p>
+
+        Next Tier:
+        ${nextTier}
+
+    </p>
+
+    <p>
+
+        Points Needed:
+        ${pointsToNext > 0 ? pointsToNext : 0}
+
+    </p>
 
 </div>
 
@@ -149,6 +316,44 @@ container.innerHTML = `
         Recent Orders
     </h2>
 
+    <br>
+
+<div class="card">
+
+    <h2>
+        Reward History
+    </h2>
+
+    <br>
+
+    ${
+        rewardHistory.length === 0
+        ? "<p>No Rewards Yet</p>"
+        : rewardHistory
+        .slice(-5)
+        .reverse()
+        .map(reward => `
+
+        <div>
+
+            <p>
+                +${reward.points} Points
+            </p>
+
+            <p>
+                Order Total:
+                ₹${reward.orderTotal}
+            </p>
+
+            <hr>
+
+        </div>
+
+        `).join("")
+    }
+
+</div>
+
     ${
         recentOrders.length === 0
         ? "<p>No Orders Yet</p>"
@@ -173,8 +378,69 @@ container.innerHTML = `
 
 </div>
 
+<br>
+
+<div class="card">
+
+    <h2>
+        Reward Transactions
+    </h2>
+
+    <br>
+
+    ${
+        rewardHistory.length === 0
+        ? "<p>No Reward Activity</p>"
+        : rewardHistory
+        .slice(-10)
+        .reverse()
+        .map(item => `
+
+        <div>
+
+            <p>
+
+                Type:
+                ${item.type}
+
+            </p>
+
+            <p>
+
+                Points:
+                ${item.points}
+
+            </p>
+
+            <p>
+
+                Date:
+                ${item.createdAt}
+
+            </p>
+
+            <hr>
+
+        </div>
+
+        `).join("")
+    }
+
+</div>
+
 `;
 
 }
 
-loadDashboard();
+onAuthStateChanged(
+    auth,
+    (user) => {
+
+        if(user){
+
+            loadDashboard();
+
+        }
+
+    }
+);

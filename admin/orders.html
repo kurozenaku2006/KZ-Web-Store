@@ -24,6 +24,80 @@ href="/css/admin.css">
 
     <br>
 
+    <div class="card">
+
+    <h3>
+        Filter Orders
+    </h3>
+
+    <br>
+
+    <button onclick="filterOrders('all')">
+        All
+    </button>
+
+    <button onclick="filterOrders('pending')">
+        Pending
+    </button>
+
+    <button onclick="filterOrders('approved')">
+        Approved
+    </button>
+
+    <button onclick="filterOrders('rejected')">
+        Rejected
+    </button>
+
+    <button onclick="filterOrders('shipped')">
+        Shipped
+    </button>
+
+    <button onclick="filterOrders('delivered')">
+        Delivered
+    </button>
+
+    <button onclick="filterOrders('cancelled')">
+        Cancelled
+    </button>
+
+    <br><br>
+
+<button onclick="exportOrders()">
+    Export Orders CSV
+</button>
+
+</div>
+
+<div class="card">
+
+    <h3>
+        Search Orders
+    </h3>
+
+    <br>
+
+    <input
+    type="text"
+    id="orderSearch"
+    placeholder="Search UID or Order ID"
+    style="width:100%;padding:10px;">
+
+</div>
+
+<br>
+
+<div
+id="orderStats"
+class="cards-grid">
+
+Loading Statistics...
+
+</div>
+
+<br>
+
+<br>
+
     <div id="ordersContainer">
 
         Loading Orders...
