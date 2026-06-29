@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Inventory Management</title>
+
+<link rel="stylesheet" href="/css/admin.css">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<div class="dashboard-layout">
+
+    <div id="sidebar" class="sidebar"></div>
+
+    <div class="main-content">
+
+        <h1 class="page-title">
+         Inventory Management
+        </h1>
+
+       <div
+id="cards"
+class="cards-grid">
+</div>
+
+<div class="card">
+
+<input
+id="searchInput"
+type="text"
+placeholder="Search Product">
+
+<select id="statusFilter">
+
+<option value="all">
+All Status
+</option>
+
+<option value="active">
+Active
+</option>
+
+<option value="inactive">
+Inactive
+</option>
+
+</select>
+
+<select id="stockFilter">
+
+<option value="all">
+All Stock
+</option>
+
+<option value="low">
+Low Stock
+</option>
+
+<option value="out">
+Out Of Stock
+</option>
+
+</select>
+
+<select id="sortFilter">
+
+<option value="name">
+Sort : Name
+</option>
+
+<option value="price">
+Sort : Price
+</option>
+
+<option value="stock">
+Sort : Stock
+</option>
+
+</select>
+
+<button
+id="exportInventoryCSV">
+
+Export CSV
+
+</button>
+
+</div>
+
+<div
+class="activity-box"
+id="inventoryProducts">
+
+Loading Products...
+
+</div>
+
+    </div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/components/navbar-loader.js"></script>
+<script src="/components/footer-loader.js"></script>
+<script src="/components/sidebar-loader.js"></script>
+
+<script
+type="module"
+src="/js/admin/inventory.js">
+</script>
+
+<script type="module">
+
+import {
+    requireAdmin
+}
+from "/js/services/guard.js";
+
+await requireAdmin();
+
+</script>
+
+</body>
+
+</html>

@@ -1,11 +1,16 @@
+import{
+buildChart
+}
+from "../../components/chart.js";
+
 export function salesChart(){
 
-    return `
+return buildChart(
 
-    <div class="chart-box">
-        Sales Chart
-    </div>
+"Sales",
 
-    `;
+"<p>Sales trend chart (V12 Graph)</p>"
+
+);
 
 }

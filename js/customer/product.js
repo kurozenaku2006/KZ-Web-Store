@@ -71,54 +71,77 @@ async function loadProduct(){
 
     container.innerHTML = `
 
-        <div class="card">
+<div class="card">
 
-            <h1>
-                ${product.name}
-            </h1>
+    <h1>
+        ${product.name}
+    </h1>
 
-            <br>
+    <br>
 
-            <p>
-                Price:
-                ₹${product.price}
-            </p>
+    <p>
+        Price:
+        ₹${product.price}
+    </p>
 
-            <br>
+    <br>
 
-            <p>
-                Stock:
-                ${product.stock}
-            </p>
+    <p>
+        Stock:
+        ${product.stock}
+    </p>
 
-            <br>
+    <br>
 
-            <p>
-                Status:
-                ${product.status}
-            </p>
+    <p>
+        Status:
+        ${product.status}
+    </p>
 
-            <br>
+    <br>
 
-           <button
-onclick="addCurrentProductToWishlist()">
+    <button
+    onclick="addCurrentProductToWishlist()">
 
-    Add To Wishlist
+        Add To Wishlist
 
-</button>
+    </button>
 
-<br><br>
+    <br><br>
 
-<button
-onclick="addProductToCart()">
+    ${
+        product.stock > 0
 
-    Add To Cart
+        ?
 
-</button>
+        `
 
-        </div>
+        <button
+        onclick="addProductToCart()">
 
-    `;
+            Add To Cart
+
+        </button>
+
+        `
+
+        :
+
+        `
+
+        <button disabled>
+
+            Out Of Stock
+
+        </button>
+
+        `
+
+    }
+
+</div>
+
+`;
 
 }
 

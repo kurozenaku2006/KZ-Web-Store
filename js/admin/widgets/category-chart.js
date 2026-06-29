@@ -1,11 +1,16 @@
+import{
+buildChart
+}
+from "../../components/chart.js";
+
 export function categoryChart(){
 
-    return `
+return buildChart(
 
-    <div class="chart-box">
-        Category Chart
-    </div>
+"Category Performance",
 
-    `;
+"<p>Category analytics graph (V12)</p>"
+
+);
 
 }

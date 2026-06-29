@@ -1,11 +1,16 @@
+import{
+buildChart
+}
+from "../../components/chart.js";
+
 export function topproductsChart(){
 
-    return `
+return buildChart(
 
-    <div class="chart-box">
-        Top Products Chart
-    </div>
+"Top Products",
 
-    `;
+"<p>Top selling products graph (V12)</p>"
+
+);
 
 }

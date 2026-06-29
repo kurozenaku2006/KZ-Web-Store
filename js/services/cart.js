@@ -5,7 +5,8 @@ import {
     deleteDoc,
     doc,
     query,
-    where
+    where,
+    updateDoc
 }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
@@ -55,13 +56,61 @@ export async function addToCart(item){
         );
 
         return;
+
+    }
+
+    const q =
+    query(
+        cartRef,
+        where(
+            "uid",
+            "==",
+            user.uid
+        ),
+        where(
+            "productId",
+            "==",
+            item.productId
+        )
+    );
+
+    const snapshot =
+    await getDocs(q);
+
+    if(
+        !snapshot.empty
+    ){
+
+        const cartDoc =
+        snapshot.docs[0];
+
+        const data =
+        cartDoc.data();
+
+        await updateDoc(
+            doc(
+                db,
+                "carts",
+                cartDoc.id
+            ),
+            {
+                quantity:
+                Number(
+                    data.quantity || 1
+                ) + 1
+            }
+        );
+
+        return;
+
     }
 
     await addDoc(
         cartRef,
         {
             ...item,
-            uid:user.uid
+            uid:user.uid,
+            quantity:1
         }
     );
 
@@ -108,6 +157,27 @@ export async function removeCartItem(id){
             "carts",
             id
         )
+    );
+
+}
+
+export async function updateCartQuantity(
+    id,
+    quantity
+){
+
+    const cartDoc =
+    doc(
+        db,
+        "carts",
+        id
+    );
+
+    await updateDoc(
+        cartDoc,
+        {
+            quantity
+        }
     );
 
 }

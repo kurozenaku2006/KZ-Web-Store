@@ -25,6 +25,11 @@ import {
 }
 from "../services/auth.js";
 
+import {
+    getProductById
+}
+from "../services/products.js";
+
 const container =
 document.getElementById(
 "checkoutContainer"
@@ -46,11 +51,13 @@ async function loadCheckout(){
 
     let total = 0;
 
-    items.forEach(item => {
+items.forEach(item => {
 
-        total += item.price;
+    total +=
+    item.price *
+    (item.quantity || 1);
 
-    });
+});
 
     const user =
 auth.currentUser;
@@ -124,11 +131,52 @@ async function(){
 
     let total = 0;
 
-    items.forEach(item => {
+   items.forEach(item => {
 
-        total += item.price;
+    total +=
+    item.price *
+    (item.quantity || 1);
 
-    });
+});
+
+    for(const item of items){
+
+    const latestProduct =
+    await getProductById(
+        item.productId
+    );
+
+    if(
+        !latestProduct
+    ){
+
+        alert(
+            "A product no longer exists."
+        );
+
+        return;
+
+    }
+
+   if(
+
+    latestProduct.stock <
+
+    (item.quantity || 1)
+
+){
+
+    alert(
+
+        `${latestProduct.name} has only ${latestProduct.stock} item(s) remaining.`
+
+    );
+
+    return;
+
+}
+
+}
 
   const redeemPoints =
 Number(

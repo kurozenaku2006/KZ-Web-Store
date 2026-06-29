@@ -1,189 +1,84 @@
 import {
-    addProduct,
-    getProducts,
-    deleteProduct,
-    updateProduct
+    getProducts
 }
 from "../services/products.js";
 
-const addBtn =
-document.getElementById("addBtn");
+import {
+    renderProducts
+}
+from "./product-renderer.js";
+
+import {
+    registerProductActions
+}
+from "./product-actions.js";
+
+import {
+    registerInventoryActions
+}
+from "./inventory-actions.js";
+
+import {
+    registerProductForm
+}
+from "./product-form.js";
 
 const productsList =
-document.getElementById("productsList");
+document.getElementById(
+    "productsList"
+);
 
 async function loadProducts(){
 
-    const products =
-    await getProducts();
+    try{
 
-    productsList.innerHTML = "";
+        const products =
+        await getProducts();
 
-    products.forEach(product => {
-
-        const lowStock =
-        product.stock <= 5
-        ? "⚠ LOW STOCK"
-        : "";
-
-        productsList.innerHTML += `
-
-        <div class="card">
-
-            <h3>
-                ${product.name}
-            </h3>
-
-            <p>
-                ₹${product.price}
-            </p>
-
-            <p>
-                Stock:
-                ${product.stock}
-                ${lowStock}
-            </p>
-
-            <p>
-                Status:
-                ${product.status}
-            </p>
-
-            <button
-            onclick="editProduct('${product.id}')">
-
-                Edit
-
-            </button>
-
-            <button
-            onclick="toggleStatus(
-                '${product.id}',
-                '${product.status}'
-            )">
-
-                Toggle Status
-
-            </button>
-
-            <button
-            onclick="removeProduct('${product.id}')">
-
-                Delete
-
-            </button>
-
-        </div>
-
-        `;
-
-    });
-
-}
-
-window.removeProduct =
-async function(id){
-
-    const confirmDelete =
-    confirm("Delete Product?");
-
-    if(!confirmDelete) return;
-
-    await deleteProduct(id);
-
-    loadProducts();
-
-}
-
-window.editProduct =
-async function(id){
-
-    const newName =
-    prompt(
-        "Enter New Product Name"
-    );
-
-    if(!newName) return;
-
-    await updateProduct(id,{
-        name:newName
-    });
-
-    loadProducts();
-
-}
-
-window.toggleStatus =
-async function(
-    id,
-    currentStatus
-){
-
-    const newStatus =
-    currentStatus === "active"
-    ? "inactive"
-    : "active";
-
-    await updateProduct(id,{
-        status:newStatus
-    });
-
-    loadProducts();
-
-}
-
-addBtn.addEventListener(
-"click",
-async ()=>{
-
-    const name =
-    document.getElementById("name").value;
-
-    const price =
-    Number(
-    document.getElementById("price").value
-    );
-
-    const stock =
-    Number(
-    document.getElementById("stock").value
-    );
-
-    if(
-        !name ||
-        !price ||
-        stock < 0
-    ){
-        alert(
-            "Please fill all fields"
+        renderProducts(
+            products,
+            productsList
         );
-        return;
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        productsList.innerHTML = `
+
+<div class="card">
+
+<h3>
+
+Failed to load products
+
+</h3>
+
+<p>
+
+${error.message}
+
+</p>
+
+</div>
+
+`;
+
     }
 
-    await addProduct({
+}
 
-        name,
-        price,
-        stock,
+registerProductActions(
+    loadProducts
+);
 
-        status:"active"
+registerInventoryActions(
+    loadProducts
+);
 
-    });
-
-    document.getElementById(
-        "name"
-    ).value = "";
-
-    document.getElementById(
-        "price"
-    ).value = "";
-
-    document.getElementById(
-        "stock"
-    ).value = "";
-
-    loadProducts();
-
-});
+registerProductForm(
+    loadProducts
+);
 
 loadProducts();

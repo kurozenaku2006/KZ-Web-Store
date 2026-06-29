@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>
+
+Notifications
+
+</title>
+
+<link
+rel="stylesheet"
+href="/css/admin.css">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<div class="dashboard-layout">
+
+<div
+id="sidebar"
+class="sidebar"></div>
+
+<div class="main-content">
+
+<h1>
+
+Notifications
+
+</h1>
+
+<br>
+
+<input
+id="title"
+placeholder="Title">
+
+<br><br>
+
+<textarea
+id="message"
+placeholder="Message">
+</textarea>
+
+<br><br>
+
+<select
+id="target">
+
+<option value="all">
+All Users
+</option>
+
+<option value="customers">
+Customers
+</option>
+
+<option value="admins">
+Admins
+</option>
+
+</select>
+
+<button
+id="sendBtn">
+
+Publish
+
+</button>
+
+<hr>
+
+<div
+id="notificationList">
+
+</div>
+
+</div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/components/navbar-loader.js"></script>
+
+<script src="/components/footer-loader.js"></script>
+
+<script src="/components/sidebar-loader.js"></script>
+
+<script
+type="module"
+src="/js/admin/notifications.js">
+</script>
+
+<script type="module">
+
+import {
+requireAdmin
+}
+from "/js/services/guard.js";
+
+await requireAdmin();
+
+</script>
+
+</body>
+
+</html>

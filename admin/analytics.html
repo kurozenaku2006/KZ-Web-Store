@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>
+
+Analytics
+
+</title>
+
+<link
+rel="stylesheet"
+href="/css/admin.css">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<div class="dashboard-layout">
+
+<div
+id="sidebar"
+class="sidebar"></div>
+
+<div class="main-content">
+
+<h1>
+
+Analytics Dashboard
+
+</h1>
+
+<br>
+
+<div class="cards-grid">
+
+<div class="card">
+
+<h3>Total Revenue</h3>
+
+<div
+class="card-value"
+id="totalRevenue">
+₹0
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Total Orders</h3>
+
+<div
+class="card-value"
+id="totalOrders">
+0
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Products Sold</h3>
+
+<div
+class="card-value"
+id="productsSold">
+0
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Average Order</h3>
+
+<div
+class="card-value"
+id="averageOrder">
+₹0
+</div>
+
+</div>
+
+</div>
+
+<div
+class="charts-grid"
+id="charts">
+
+</div>
+
+<br>
+
+<div
+class="activity-box">
+
+<h2>
+
+Top Selling Products
+
+</h2>
+
+<br>
+
+<div
+id="topProducts">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/components/navbar-loader.js"></script>
+
+<script src="/components/footer-loader.js"></script>
+
+<script src="/components/sidebar-loader.js"></script>
+
+<script
+type="module"
+src="/js/admin/analytics.js">
+</script>
+
+<script type="module">
+
+import{
+requireAdmin
+}
+from "/js/services/guard.js";
+
+await requireAdmin();
+
+</script>
+
+</body>
+
+</html>

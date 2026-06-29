@@ -1,11 +1,16 @@
+import{
+buildChart
+}
+from "../../components/chart.js";
+
 export function revenueChart(){
 
-    return `
+return buildChart(
 
-    <div class="chart-box">
-        Revenue Chart
-    </div>
+"Revenue",
 
-    `;
+"<p>Revenue trend chart (V12 Graph)</p>"
+
+);
 
 }

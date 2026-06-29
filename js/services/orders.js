@@ -5,7 +5,8 @@ import {
     query,
     where,
     doc,
-    updateDoc
+    updateDoc,
+    runTransaction
 }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
@@ -19,6 +20,16 @@ import {
     db
 }
 from "../config/firebase.js";
+
+import {
+    decreaseStock
+}
+from "./inventory.js";
+
+import {
+    getProductById
+}
+from "./products.js";
 
 const ordersRef =
 collection(db,"orders");
@@ -55,16 +66,71 @@ export async function createOrder(order){
         return;
     }
 
-    await addDoc(
-        ordersRef,
-        {
-            ...order,
-            uid:user.uid,
-            status:"pending",
-            createdAt:
-            new Date().toISOString()
-        }
+    for(const item of order.items){
+
+    const product =
+await getProductById(
+    item.productId
+);
+
+    if(!product){
+
+        throw new Error(
+            `${item.name} not found.`
+        );
+
+    }
+
+    const quantity =
+    Number(
+        item.quantity || 1
     );
+
+    if(
+        product.stock <
+        quantity
+    ){
+
+        throw new Error(
+            `${product.name} is out of stock.`
+        );
+
+    }
+
+}
+
+for(const item of order.items){
+
+    const quantity =
+    Number(
+        item.quantity || 1
+    );
+
+    await decreaseStock(
+
+    item.productId,
+
+        quantity,
+
+        "Customer Order",
+
+        user.email ||
+        user.uid
+
+    );
+
+}
+
+await addDoc(
+    ordersRef,
+    {
+        ...order,
+        uid:user.uid,
+        status:"pending",
+        createdAt:
+        new Date().toISOString()
+    }
+);
 
 }
 
@@ -122,6 +188,26 @@ export async function updateOrderStatus(
     orderId,
     status
 ){
+
+    const snapshot =
+    await getDocs(ordersRef);
+
+    const order =
+    snapshot.docs
+    .map(doc => ({
+        id:doc.id,
+        ...doc.data()
+    }))
+    .find(
+        order =>
+        order.id === orderId
+    );
+
+    if(!order){
+
+        return;
+
+    }
 
     const orderRef =
     doc(

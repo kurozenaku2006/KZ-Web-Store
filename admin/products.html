@@ -67,6 +67,47 @@ href="/css/admin.css">
 
 </div>
 
+<div
+id="inventoryModal"
+style="
+display:none;
+position:fixed;
+top:10%;
+left:50%;
+transform:translateX(-50%);
+background:#1e2230;
+padding:20px;
+width:500px;
+max-height:500px;
+overflow:auto;
+border-radius:12px;
+z-index:999;
+">
+
+<h2>
+
+Inventory History
+
+</h2>
+
+<br>
+
+<div
+id="inventoryContent">
+
+</div>
+
+<br>
+
+<button
+onclick="closeInventoryModal()">
+
+Close
+
+</button>
+
+</div>
+
 <div id="footer"></div>
 
 <script src="/components/navbar-loader.js"></script>

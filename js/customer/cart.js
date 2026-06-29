@@ -1,6 +1,7 @@
 import {
     getCartItems,
-    removeCartItem
+    removeCartItem,
+    updateCartQuantity
 }
 from "../services/cart.js";
 
@@ -33,7 +34,7 @@ async function loadCart(){
 
     items.forEach(item => {
 
-        total += item.price;
+total += item.price * (item.quantity || 1);
 
         container.innerHTML += `
 
@@ -46,6 +47,31 @@ async function loadCart(){
             <p>
                 ₹${item.price}
             </p>
+
+            <p>
+
+Quantity
+
+</p>
+
+<input
+type="number"
+min="1"
+value="${item.quantity || 1}"
+onchange="changeQuantity(
+'${item.id}',
+this.value
+)"
+>
+
+<p>
+
+    Subtotal:
+    ₹${item.price * (item.quantity || 1)}
+
+</p>
+
+<br>
 
             <button
             onclick="
@@ -87,6 +113,32 @@ async function loadCart(){
     </div>
 
     `;
+
+}
+
+window.changeQuantity =
+async function(
+id,
+quantity
+){
+
+    quantity =
+    Number(quantity);
+
+    if(
+        quantity < 1
+    ){
+
+        quantity = 1;
+
+    }
+
+    await updateCartQuantity(
+        id,
+        quantity
+    );
+
+    loadCart();
 
 }
 

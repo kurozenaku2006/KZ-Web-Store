@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
 
 <meta charset="UTF-8">
 
-<meta
-name="viewport"
-content="width=device-width,initial-scale=1">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
 
 <title>
 
-Activity
+Inventory History
 
 </title>
 
@@ -30,76 +28,113 @@ href="/css/admin.css">
 
 <div
 id="sidebar"
-class="sidebar"></div>
+class="sidebar">
+</div>
 
 <div class="main-content">
 
 <h1>
 
-Activity Logs
+Inventory History
 
 </h1>
 
 <br>
 
 <div
-id="activityStats"
+id="cards"
 class="cards-grid">
-
-Loading Statistics...
-
 </div>
 
-<br>
+<div class="card">
 
 <input
 id="searchInput"
-placeholder="Search">
+placeholder="Search Product">
 
 <select
-id="moduleFilter">
+id="movementFilter">
 
 <option value="all">
-All Modules
+All Movements
 </option>
 
-<option value="products">
-Products
+<option value="increase">
+Restock
 </option>
 
-<option value="inventory">
-Inventory
+<option value="decrease">
+Reduction
 </option>
 
-<option value="orders">
-Orders
+<option value="adjustment">
+Adjustment
 </option>
 
-<option value="claims">
-Claims
+</select>
+
+<input
+type="date"
+id="startDate">
+
+<input
+type="date"
+id="endDate">
+
+<select
+id="sortOrder">
+
+<option value="desc">
+Newest First
 </option>
 
-<option value="customers">
-Customers
+<option value="asc">
+Oldest First
 </option>
 
 </select>
 
 <button
-id="refreshActivity">
+id="todayBtn">
 
-Refresh
+Today
 
 </button>
 
-<br><br>
+<button
+id="weekBtn">
 
-<hr>
+Last 7 Days
+
+</button>
+
+<button
+id="monthBtn">
+
+Last 30 Days
+
+</button>
+
+<button
+id="allBtn">
+
+All
+
+</button>
+
+<button
+id="exportBtn">
+
+Export CSV
+
+</button>
+
+</div>
 
 <br>
 
 <div
-id="activityList">
+id="historyTable">
 
 Loading...
 
@@ -119,7 +154,7 @@ Loading...
 
 <script
 type="module"
-src="/js/admin/activity.js">
+src="/js/admin/inventory-history.js">
 </script>
 
 <script type="module">

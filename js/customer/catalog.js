@@ -33,24 +33,33 @@ async function loadCatalog(){
     }
 
     activeProducts.forEach(
-    product => {
+product => {
 
-        catalogGrid.innerHTML += `
+    catalogGrid.innerHTML += `
 
-        <div class="card">
+    <div class="card">
 
-            <h2>
-                ${product.name}
-            </h2>
+        <h2>
+            ${product.name}
+        </h2>
 
-            <p>
-                ₹${product.price}
-            </p>
+        <p>
+            ₹${product.price}
+        </p>
 
-            <p>
-                Stock:
-                ${product.stock}
-            </p>
+        <p>
+            Stock:
+            ${product.stock}
+        </p>
+
+        <br>
+
+        ${
+product.stock > 0 && !product.outOfStock
+
+            ?
+
+            `
 
             <button
             onclick="
@@ -62,11 +71,27 @@ async function loadCatalog(){
 
             </button>
 
-        </div>
+            `
 
-        `;
+            :
 
-    });
+            `
+
+            <button disabled>
+
+                Out Of Stock
+
+            </button>
+
+            `
+
+        }
+
+    </div>
+
+    `;
+
+});
 
 }
 
