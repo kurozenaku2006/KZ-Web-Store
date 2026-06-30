@@ -78,6 +78,51 @@ revenue/
 orders.length
 );
 
+const monthlyRevenue = {};
+
+orders.forEach(order=>{
+
+if(
+order.status==="approved" ||
+order.status==="shipped" ||
+order.status==="delivered"
+){
+
+const date =
+new Date(
+order.createdAt
+);
+
+const month =
+`${date.getFullYear()}-${String(
+date.getMonth()+1
+).padStart(2,"0")}`;
+
+monthlyRevenue[month] ??= 0;
+
+monthlyRevenue[month] +=
+Number(
+order.total || 0
+);
+
+}
+
+});
+
+const categorySales = {};
+
+products.forEach(product=>{
+
+const category =
+product.category ||
+"Other";
+
+categorySales[category] ??= 0;
+
+categorySales[category]++;
+
+});
+
 return{
 
 products,
@@ -88,7 +133,9 @@ revenue,
 
 productsSold,
 
-averageOrder
+averageOrder,
+monthlyRevenue,
+categorySales
 
 };
 

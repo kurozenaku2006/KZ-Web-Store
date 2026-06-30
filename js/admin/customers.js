@@ -107,6 +107,51 @@ Spent :
 
 }
 
+window.exportCustomers =
+function(){
+
+const csv =
+
+[
+"Name,Email,Orders,Claims,Spent"
+];
+
+customers.forEach(customer=>{
+
+csv.push(
+`"${customer.name}","${customer.email}",${customer.totalOrders},${customer.totalClaims},${customer.totalSpend}`
+);
+
+});
+
+const blob =
+new Blob(
+[csv.join("\n")],
+{
+type:"text/csv"
+}
+);
+
+const url =
+URL.createObjectURL(
+blob
+);
+
+const a =
+document.createElement(
+"a"
+);
+
+a.href=url;
+a.download=
+"customers.csv";
+a.click();
+
+URL.revokeObjectURL(
+url);
+
+};
+
 search.oninput=
 render;
 

@@ -9,6 +9,11 @@ import {
 }
 from "../services/inventoryLogs.js";
 
+import {
+    bulkUpdateStock
+}
+from "../services/inventory.js";
+
 const cards =
 document.getElementById(
     "cards"
@@ -42,6 +47,11 @@ document.getElementById(
 const exportBtn =
 document.getElementById(
     "exportInventoryCSV"
+);
+
+const bulkUpdateBtn =
+document.getElementById(
+    "bulkUpdateBtn"
 );
 
 async function loadInventory(){
@@ -345,6 +355,62 @@ async function exportCSV(){
 
 }
 
+async function runBulkUpdate(){
+
+    const ids =
+    prompt(
+        "Format:\nproductId:stock,productId:stock"
+    );
+
+    if(!ids){
+
+        return;
+
+    }
+
+    const updates =
+    ids.split(",")
+    .map(item=>{
+
+        const parts =
+        item.split(":");
+
+        return{
+            productId:
+            parts[0].trim(),
+            stock:
+            Number(parts[1])
+        };
+
+    })
+    .filter(
+        item=>
+        item.productId &&
+        !isNaN(item.stock)
+    );
+
+    if(updates.length===0){
+
+        alert(
+            "Invalid format."
+        );
+
+        return;
+
+    }
+
+    await bulkUpdateStock(
+        updates
+    );
+
+    alert(
+        "Bulk update completed."
+    );
+
+    loadInventory();
+
+}
+
 loadInventory();
 
 searchInput.oninput =
@@ -358,6 +424,9 @@ loadInventory;
 
 exportBtn.onclick =
 exportCSV;
+
+bulkUpdateBtn.onclick =
+runBulkUpdate;
 
 sortFilter.onchange =
 loadInventory;

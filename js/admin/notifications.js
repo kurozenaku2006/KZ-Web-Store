@@ -124,15 +124,26 @@ return;
 
 }
 
-await createNotification({
+try{
 
-title,
+    await createNotification({
 
-message,
+        title,
+        message,
+        target
 
-target
+    });
 
-});
+}
+catch(error){
+
+    alert(
+        error.message
+    );
+
+    return;
+
+}
 
 document
 .getElementById(

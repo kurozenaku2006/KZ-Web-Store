@@ -2,6 +2,7 @@ import {
     collection,
     addDoc,
     getDocs,
+    getDoc,
     query,
     where,
     doc,
@@ -117,9 +118,54 @@ export async function getAllClaims(){
 }
 
 export async function updateClaimStatus(
-id,
-status
+    id,
+    status
 ){
+
+    const claimRef =
+    doc(
+        db,
+        "claims",
+        id
+    );
+
+    const snapshot =
+    await getDoc(
+        claimRef
+    );
+
+    if(
+        !snapshot.exists()
+    ){
+
+        throw new Error(
+            "Claim not found."
+        );
+
+    }
+
+    const claim =
+    snapshot.data();
+
+    if(
+        claim.status !==
+        "pending"
+    ){
+
+        throw new Error(
+            "Claim already processed."
+        );
+
+    }
+
+    await updateDoc(
+        claimRef,
+        {
+            status
+        }
+    );
+
+}{
 
     await updateDoc(
         doc(

@@ -21,19 +21,45 @@ db,
 "notifications"
 );
 
-export async function createNotification(data){
+export async function createNotification(
+    data
+){
 
-await addDoc(
-notificationsRef,
-{
-title:data.title,
-message:data.message,
-type:data.type || "general",
-target:data.target || "all",
-status:"active",
-createdAt:new Date().toISOString()
-}
-);
+    if(
+        !data.title?.trim() ||
+        !data.message?.trim()
+    ){
+
+        throw new Error(
+            "Invalid notification."
+        );
+
+    }
+
+    await addDoc(
+        notificationsRef,
+        {
+            title:
+            data.title.trim(),
+
+            message:
+            data.message.trim(),
+
+            type:
+            data.type ||
+            "general",
+
+            target:
+            data.target ||
+            "all",
+
+            status:
+            "active",
+
+            createdAt:
+            new Date().toISOString()
+        }
+    );
 
 }
 

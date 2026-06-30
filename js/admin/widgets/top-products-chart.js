@@ -3,7 +3,7 @@ buildChart
 }
 from "../../components/chart.js";
 
-export function topproductsChart(){
+export function topProductsChart(){
 
 return buildChart(
 

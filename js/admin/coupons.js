@@ -165,19 +165,28 @@ return;
 
 }
 
-await addCoupon({
+try{
 
-code,
+    await addCoupon({
 
-discount,
+        code,
+        discount,
+        limit,
+        used:0,
+        status:"active"
 
-limit,
+    });
 
-used:0,
+}
+catch(error){
 
-status:"active"
+    alert(
+        error.message
+    );
 
-});
+    return;
+
+}
 
 document
 .getElementById(

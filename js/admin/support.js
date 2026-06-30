@@ -52,12 +52,23 @@ ${ticket.status||"open"}
 
 </p>
 
-<button
+${
+ticket.status==="closed"
+
+?
+
+`<button
+onclick="reopenTicket('${ticket.id}')">
+Reopen
+</button>`
+
+:
+
+`<button
 onclick="closeTicket('${ticket.id}')">
-
 Close
-
-</button>
+</button>`
+}
 
 </div>
 
@@ -73,6 +84,18 @@ async id=>{
 await updateSupportStatus(
 id,
 "closed"
+);
+
+load();
+
+};
+
+window.reopenTicket =
+async id=>{
+
+await updateSupportStatus(
+id,
+"open"
 );
 
 load();

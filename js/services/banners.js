@@ -21,22 +21,58 @@ db,
 "banners"
 );
 
-export async function addBanner(data){
+export async function addBanner(
+    data
+){
 
-await addDoc(
-bannersRef,
-{
-title:data.title,
-image:data.image,
-link:data.link,
-priority:Number(
-data.priority
-),
-status:"active",
-createdAt:
-new Date().toISOString()
-}
-);
+    try{
+
+        new URL(
+            data.image
+        );
+
+    }
+    catch{
+
+        throw new Error(
+            "Invalid image URL."
+        );
+
+    }
+
+    if(data.link){
+
+        try{
+
+            new URL(
+                data.link
+            );
+
+        }
+        catch{
+
+            throw new Error(
+                "Invalid redirect URL."
+            );
+
+        }
+
+    }
+
+    await addDoc(
+        bannersRef,
+        {
+            title:data.title,
+            image:data.image,
+            link:data.link,
+            priority:Number(
+                data.priority
+            ),
+            status:"active",
+            createdAt:
+            new Date().toISOString()
+        }
+    );
 
 }
 

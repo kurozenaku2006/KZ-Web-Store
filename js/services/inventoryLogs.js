@@ -215,8 +215,12 @@ export function convertInventoryLogsToCSV(
 
         ...rows.map(
             row =>
-            row.join(",")
-        )
+row.map(
+    value =>
+    `"${String(value ?? "")
+        .replaceAll('"','""')}"`
+)
+.join(",")        )
 
     ].join("\n");
 

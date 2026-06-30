@@ -37,6 +37,17 @@ type="module"
 src="/js/admin/revenue.js">
 </script>
 
+<script type="module">
+
+import {
+    requireAdmin
+}
+from "/js/services/guard.js";
+
+await requireAdmin();
+
+</script>
+
 </body>
 
 </html>

@@ -4,7 +4,8 @@ import {
     getDoc,
     getDocs,
     updateDoc,
-    addDoc
+    addDoc,
+    runTransaction
 }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
@@ -52,42 +53,61 @@ export async function updateInventoryStock(
     performedBy = "admin"
 ){
 
-    const product =
-    await getProductById(
-        productId
-    );
+    let previousStock = 0;
+    let productName = "";
 
-    if(!product){
+    await runTransaction(
+        db,
+        async transaction => {
 
-        throw new Error(
-            "Product not found."
-        );
+            const productRef =
+            doc(
+                db,
+                "products",
+                productId
+            );
 
-    }
+            const snapshot =
+            await transaction.get(
+                productRef
+            );
 
-    if(newStock < 0){
+            if(!snapshot.exists()){
 
-        throw new Error(
-            "Stock cannot be negative."
-        );
+                throw new Error(
+                    "Product not found."
+                );
 
-    }
+            }
 
-    const previousStock =
-    Number(
-        product.stock || 0
-    );
+            const product =
+            snapshot.data();
 
-    await updateDoc(
-        doc(
-            db,
-            "products",
-            productId
-        ),
-        {
-            stock:newStock,
-            lastUpdated:
-            new Date().toISOString()
+            previousStock =
+            Number(
+                product.stock || 0
+            );
+
+            productName =
+            product.name;
+
+            if(newStock < 0){
+
+                throw new Error(
+                    "Stock cannot be negative."
+                );
+
+            }
+
+            transaction.update(
+                productRef,
+                {
+                    stock:newStock,
+                    lastUpdated:
+                    new Date().toISOString()
+                }
+            );
+
         }
     );
 
@@ -95,8 +115,7 @@ export async function updateInventoryStock(
         inventoryLogsRef,
         {
             productId,
-            productName:
-            product.name,
+            productName,
             movementType,
             quantity:
             Math.abs(
@@ -202,5 +221,45 @@ export async function adjustStock(
         reason,
         performedBy
     );
+
+}
+
+export async function bulkUpdateStock(
+    updates = [],
+    performedBy = "admin"
+){
+
+    const results = [];
+
+    for(const item of updates){
+
+        try{
+
+            await adjustStock(
+                item.productId,
+                item.stock,
+                item.reason || "Bulk Stock Update",
+                performedBy
+            );
+
+            results.push({
+                productId:item.productId,
+                success:true
+            });
+
+        }
+        catch(error){
+
+            results.push({
+                productId:item.productId,
+                success:false,
+                error:error.message
+            });
+
+        }
+
+    }
+
+    return results;
 
 }

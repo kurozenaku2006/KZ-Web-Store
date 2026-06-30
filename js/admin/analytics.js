@@ -19,10 +19,8 @@ salesChart
 }
 from "./widgets/sales-chart.js";
 
-import{
-
-topproductsChart
-
+import {
+    topProductsChart
 }
 from "./widgets/top-products-chart.js";
 
@@ -69,6 +67,14 @@ document.getElementById(
 
 `₹${analytics.averageOrder}`;
 
+renderMonthlyRevenue(
+analytics.monthlyRevenue
+);
+
+renderCategoryData(
+analytics.categorySales
+);
+
 charts.innerHTML=
 
 revenueChart()
@@ -79,7 +85,7 @@ salesChart()
 
 +
 
-topproductsChart()
+topProductsChart()
 
 +
 
@@ -130,6 +136,74 @@ ${product.stock}
 </div>
 
 `).join("");
+
+}
+
+function renderMonthlyRevenue(
+data
+){
+
+const container =
+document.getElementById(
+"monthlyRevenue"
+);
+
+if(!container){
+
+return;
+}
+
+container.innerHTML =
+
+Object.entries(data)
+.map(
+([month,value])=>
+
+`<div class="activity-item">
+
+<b>${month}</b>
+
+<br>
+
+₹${value}
+
+</div>`
+)
+.join("");
+
+}
+
+function renderCategoryData(
+data
+){
+
+const container =
+document.getElementById(
+"categoryAnalytics"
+);
+
+if(!container){
+
+return;
+}
+
+container.innerHTML =
+
+Object.entries(data)
+.map(
+([category,value])=>
+
+`<div class="activity-item">
+
+<b>${category}</b>
+
+<br>
+
+${value} Products
+
+</div>`
+)
+.join("");
 
 }
 

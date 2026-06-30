@@ -6,7 +6,8 @@ updateDoc,
 deleteDoc,
 doc,
 query,
-orderBy
+orderBy,
+where
 }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
@@ -21,16 +22,41 @@ db,
 "coupons"
 );
 
-export async function addCoupon(coupon){
+export async function addCoupon(
+    coupon
+){
 
-await addDoc(
-couponsRef,
-{
-...coupon,
-createdAt:
-new Date().toISOString()
-}
-);
+    const q =
+    query(
+        couponsRef,
+        where(
+            "code",
+            "==",
+            coupon.code
+        )
+    );
+
+    const snapshot =
+    await getDocs(q);
+
+    if(
+        !snapshot.empty
+    ){
+
+        throw new Error(
+            "Coupon already exists."
+        );
+
+    }
+
+    await addDoc(
+        couponsRef,
+        {
+            ...coupon,
+            createdAt:
+            new Date().toISOString()
+        }
+    );
 
 }
 
