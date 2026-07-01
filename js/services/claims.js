@@ -22,16 +22,19 @@ import {
 from "../config/firebase.js";
 
 const claimsRef =
-collection(db,"claims");
+collection(
+    db,
+    "claims"
+);
 
 function getCurrentUser(){
 
-    return new Promise((resolve)=>{
+    return new Promise(resolve=>{
 
         const unsubscribe =
         onAuthStateChanged(
             auth,
-            (user)=>{
+            user=>{
 
                 unsubscribe();
                 resolve(user);
@@ -92,12 +95,13 @@ export async function getUserClaims(){
     const snapshot =
     await getDocs(q);
 
-    return snapshot.docs.map(
-        doc => ({
-            id:doc.id,
-            ...doc.data()
-        })
-    );
+    return snapshot.docs.map(doc=>({
+
+        id:doc.id,
+
+        ...doc.data()
+
+    }));
 
 }
 
@@ -108,12 +112,13 @@ export async function getAllClaims(){
         claimsRef
     );
 
-    return snapshot.docs.map(
-        doc => ({
-            id:doc.id,
-            ...doc.data()
-        })
-    );
+    return snapshot.docs.map(doc=>({
+
+        id:doc.id,
+
+        ...doc.data()
+
+    }));
 
 }
 
@@ -161,20 +166,9 @@ export async function updateClaimStatus(
     await updateDoc(
         claimRef,
         {
-            status
-        }
-    );
-
-}{
-
-    await updateDoc(
-        doc(
-            db,
-            "claims",
-            id
-        ),
-        {
-            status
+            status,
+            updatedAt:
+            new Date().toISOString()
         }
     );
 
