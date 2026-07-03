@@ -5,6 +5,11 @@ import {
 }
 from "../services/products.js";
 
+import {
+    logActivity
+}
+from "../services/activity.js";
+
 export function registerProductActions(refreshProducts){
 
     window.removeProduct =
@@ -13,15 +18,35 @@ export function registerProductActions(refreshProducts){
         const confirmDelete =
         confirm("Delete Product?");
 
+        const products =
+await getProducts();
+
+const product =
+products.find(
+p=>p.id===id
+);
+
         if(!confirmDelete){
 
             return;
 
         }
 
-        await deleteProduct(id);
+        await logActivity({
 
-        await refreshProducts();
+    module:"Products",
+
+    action:"Deleted Product",
+
+    targetId:id,
+
+    targetName:product?.name||""
+
+});
+
+await deleteProduct(id);
+
+await refreshProducts();
 
     };
 
@@ -100,6 +125,30 @@ export function registerProductActions(refreshProducts){
             }
         );
 
+        await logActivity({
+
+    module:"Products",
+
+    action:"Edited Product",
+
+    targetId:id,
+
+    targetName:newName,
+
+    metadata:{
+
+        oldName:product.name,
+
+        newName,
+
+        price:newPrice,
+
+        stock:newStock
+
+    }
+
+});
+
         await refreshProducts();
 
     };
@@ -116,13 +165,39 @@ export function registerProductActions(refreshProducts){
         : "active";
 
         await updateProduct(
-            id,
-            {
-                status:newStatus
-            }
-        );
+    id,
+    {
+        status:newStatus
+    }
+);
 
-        await refreshProducts();
+const products =
+await getProducts();
+
+const product =
+products.find(
+p=>p.id===id
+);
+
+await logActivity({
+
+    module:"Products",
+
+    action:
+    newStatus==="active"
+    ?
+    "Activated Product"
+    :
+    "Deactivated Product",
+
+    targetId:id,
+
+    targetName:
+    product?.name||""
+
+});
+
+await refreshProducts();
 
     };
 

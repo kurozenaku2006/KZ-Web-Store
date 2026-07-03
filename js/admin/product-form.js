@@ -3,6 +3,11 @@ import {
 }
 from "../services/products.js";
 
+import {
+    logActivity
+}
+from "../services/activity.js";
+
 export function registerProductForm(
     refreshProducts
 ){
@@ -57,17 +62,33 @@ export function registerProductForm(
 
             }
 
-            await addProduct({
+            const product = {
 
-                name,
+    name,
 
-                price,
+    price,
 
-                stock,
+    stock,
 
-                status:"active"
+    status:"active"
 
-            });
+};
+
+await addProduct(
+    product
+);
+
+await logActivity({
+
+    module:"Products",
+
+    action:"Added Product",
+
+    targetName:name,
+
+    metadata:product
+
+});
 
             document.getElementById(
                 "name"
