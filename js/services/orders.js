@@ -59,6 +59,34 @@ export async function createOrder(order){
     const user =
     await getCurrentUser();
 
+    const userDoc =
+await getDocs(
+query(
+collection(
+db,
+"users"
+),
+where(
+"uid",
+"==",
+user.uid
+)
+)
+);
+
+const account =
+userDoc.docs[0]?.data();
+
+if(
+account?.status==="disabled"
+){
+
+throw new Error(
+"Your account has been disabled."
+);
+
+}
+
     if(!user){
 
         alert("Please Login");

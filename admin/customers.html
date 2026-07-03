@@ -42,9 +42,145 @@ Customers
 
 <br>
 
+<div
+id="customerStats"
+class="cards-grid">
+
+Loading Statistics...
+
+</div>
+
+<br>
+
 <input
 id="customerSearch"
 placeholder="Search customer">
+
+<br><br>
+
+<select id="customerSort">
+
+<option value="name">
+Sort : Name
+</option>
+
+<option value="spent">
+Sort : Highest Spend
+</option>
+
+<option value="orders">
+Sort : Most Orders
+</option>
+
+<option value="rewards">
+Sort : Reward Points
+</option>
+
+</select>
+
+<br><br>
+
+<select id="customerTierFilter">
+
+<option value="all">
+
+All Tiers
+
+</option>
+
+<option value="Bronze">
+
+Bronze
+
+</option>
+
+<option value="Silver">
+
+Silver
+
+</option>
+
+<option value="Gold">
+
+Gold
+
+</option>
+
+<option value="Platinum">
+
+Platinum
+
+</option>
+
+</select>
+
+<select id="customerOrderFilter">
+
+<option value="all">
+
+All Customers
+
+</option>
+
+<option value="ordered">
+
+Has Orders
+
+</option>
+
+<option value="noorders">
+
+No Orders
+
+</option>
+
+</select>
+
+<select id="customerRiskFilter">
+
+<option value="all">
+
+All Risk
+
+</option>
+
+<option value="Low">
+
+Low Risk
+
+</option>
+
+<option value="Medium">
+
+Medium Risk
+
+</option>
+
+<option value="High">
+
+High Risk
+
+</option>
+
+</select>
+
+<select id="customerStatusFilter">
+
+<option value="all">
+All Status
+</option>
+
+<option value="active">
+Active
+</option>
+
+<option value="disabled">
+Disabled
+</option>
+
+</select>
+
+<br><br>
 
 <button
 onclick="exportCustomers()">
@@ -59,6 +195,64 @@ Export CSV
 id="customersContainer">
 
 Loading...
+
+</div>
+
+<div
+id="customerModal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.5);
+overflow:auto;
+padding:40px;
+box-sizing:border-box;
+z-index:9999;
+">
+
+<div
+class="card"
+style="
+max-width:900px;
+margin:auto;
+">
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<h2>
+
+Customer Details
+
+</h2>
+
+<button
+onclick="closeCustomer()">
+
+Close
+
+</button>
+
+</div>
+
+<hr>
+
+<div
+id="customerModalContent">
+
+Loading...
+
+</div>
+
+</div>
 
 </div>
 
