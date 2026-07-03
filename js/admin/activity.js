@@ -32,12 +32,55 @@ document.getElementById(
 "activityStats"
 );
 
+const actionFilter=
+document.getElementById(
+"actionFilter"
+);
+
+const dateFilter=
+document.getElementById(
+"dateFilter"
+);
+
+const pagination=
+document.getElementById(
+"activityPagination"
+);
+
+let page=1;
+
+const perPage=25;
+
 let logs=[];
 
 async function load(){
 
-logs =
+logs=
 await getActivity();
+
+const actions=[
+
+...new Set(
+
+logs.map(log=>
+
+log.action
+
+)
+
+)
+
+].sort();
+
+actionFilter.innerHTML=
+
+'<option value="all">All Actions</option>'+
+
+actions.map(action=>
+
+`<option value="${action}">${action}</option>`
+
+).join("");
 
 render();
 
@@ -84,6 +127,72 @@ moduleFilter.value
 
 }
 
+if(
+actionFilter.value!=="all"
+){
+
+data=data.filter(
+
+log=>
+
+log.action===
+
+actionFilter.value
+
+);
+
+}
+
+if(
+dateFilter.value
+){
+
+data=data.filter(log=>
+
+(log.createdAt||"")
+
+.startsWith(
+
+dateFilter.value
+
+)
+
+);
+
+}
+
+const pages=
+
+Math.max(
+
+1,
+
+Math.ceil(
+
+data.length/
+
+perPage
+
+)
+
+);
+
+if(page>pages){
+
+page=pages;
+
+}
+
+const current=
+
+data.slice(
+
+(page-1)*perPage,
+
+page*perPage
+
+);
+
 activityList.innerHTML=
 
 data.length===0
@@ -94,7 +203,7 @@ data.length===0
 
 :
 
-data.map(log=>`
+current.map(log=>`
 
 <div class="activity-item">
 
@@ -126,6 +235,38 @@ log.createdAt
 
 `).join("");
 
+pagination.innerHTML=`
+
+<button
+
+${page===1?"disabled":""}
+
+onclick="previousPage()">
+
+Previous
+
+</button>
+
+Page
+
+${page}
+
+/
+
+${pages}
+
+<button
+
+${page===pages?"disabled":""}
+
+onclick="nextPage()">
+
+Next
+
+</button>
+
+`;
+
 }
 
 searchInput.oninput=
@@ -133,6 +274,82 @@ render;
 
 moduleFilter.onchange=
 render;
+
+actionFilter.onchange=
+render;
+
+dateFilter.onchange=
+render;
+
+window.previousPage=()=>{
+
+if(page>1){
+
+page--;
+
+render();
+
+}
+
+};
+
+window.nextPage=()=>{
+
+page++;
+
+render();
+
+};
+
+window.exportActivity=()=>{
+
+const csv=[
+
+"Module,Action,Target,Performed By,Date"
+
+];
+
+logs.forEach(log=>{
+
+csv.push(
+
+`"${log.module}","${log.action}","${log.targetName}","${log.performedBy}","${log.createdAt}"`
+
+);
+
+});
+
+const blob=
+
+new Blob(
+
+[csv.join("\n")],
+
+{
+
+type:"text/csv"
+
+}
+
+);
+
+const url=
+
+URL.createObjectURL(blob);
+
+const a=
+
+document.createElement("a");
+
+a.href=url;
+
+a.download="activity.csv";
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+};
 
 async function renderStats(){
 

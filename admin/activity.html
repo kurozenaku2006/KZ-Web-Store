@@ -92,6 +92,28 @@ Refresh
 
 </button>
 
+<button
+onclick="exportActivity()">
+
+Export CSV
+
+</button>
+
+<select
+id="actionFilter">
+
+<option value="all">
+
+All Actions
+
+</option>
+
+</select>
+
+<input
+type="date"
+id="dateFilter">
+
 <br><br>
 
 <hr>
@@ -102,6 +124,13 @@ Refresh
 id="activityList">
 
 Loading...
+
+</div>
+
+<br>
+
+<div
+id="activityPagination">
 
 </div>
 

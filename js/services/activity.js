@@ -29,7 +29,7 @@ targetId = "",
 
 targetName = "",
 
-performedBy = "system",
+performedBy = "Admin",
 
 metadata = {}
 
@@ -52,7 +52,13 @@ performedBy,
 metadata,
 
 createdAt:
-new Date().toISOString()
+new Date().toISOString(),
+
+day:
+new Date().toISOString().split("T")[0],
+
+time:
+new Date().toLocaleTimeString()
 
 }
 );
