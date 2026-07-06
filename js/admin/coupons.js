@@ -6,7 +6,9 @@ getCoupons,
 
 updateCoupon,
 
-deleteCoupon
+deleteCoupon,
+
+getCouponStatistics
 
 }
 from "../services/coupons.js";
@@ -16,19 +18,129 @@ document.getElementById(
 "couponList"
 );
 
+const stats =
+document.getElementById(
+"couponStats"
+);
+
 const addBtn =
 document.getElementById(
 "addBtn"
 );
 
+const search =
+document.getElementById(
+"couponSearch"
+);
+
+const statusFilter =
+document.getElementById(
+"couponStatus"
+);
+
+let coupons = [];
+
 async function load(){
 
-const coupons =
+coupons =
 await getCoupons();
+
+let data =
+[...coupons];
+
+const keyword =
+search.value
+.toLowerCase();
+
+if(keyword){
+
+data =
+data.filter(coupon=>
+
+coupon.code
+.toLowerCase()
+.includes(keyword)
+
+);
+
+}
+
+if(
+statusFilter.value!=="all"
+){
+
+data =
+data.filter(
+coupon=>
+
+coupon.status===statusFilter.value
+
+);
+
+}
+
+const analytics =
+await getCouponStatistics();
+
+stats.innerHTML=`
+
+<div class="card">
+
+<h3>Total</h3>
+
+<div class="card-value">
+
+${analytics.total}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Active</h3>
+
+<div class="card-value">
+
+${analytics.active}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Expired</h3>
+
+<div class="card-value">
+
+${analytics.expired}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Total Uses</h3>
+
+<div class="card-value">
+
+${analytics.totalUses}
+
+</div>
+
+</div>
+
+`;
 
 list.innerHTML="";
 
-coupons.forEach(coupon=>{
+renderStats(data);
+
+list.innerHTML="";
+
+data.forEach(coupon=>{
 
 list.innerHTML+=`
 
@@ -50,9 +162,34 @@ ${coupon.discount}%
 <p>
 
 Usage :
-${coupon.used || 0}
+${coupon.usedCount||0}
 /
 ${coupon.limit}
+
+</p>
+
+<p>
+
+Remaining :
+${Math.max(
+0,
+Number(coupon.limit||0)-
+Number(coupon.usedCount||0)
+)}
+
+</p>
+
+<p>
+
+Expiry :
+${coupon.expiry||"Never"}
+
+</p>
+
+<p>
+
+Restriction :
+${coupon.allowedCustomer||"Everyone"}
 
 </p>
 
@@ -82,6 +219,107 @@ Delete
 `;
 
 });
+
+}
+
+function renderStats(data){
+
+const active =
+data.filter(
+c=>c.status==="active"
+).length;
+
+const inactive =
+data.filter(
+c=>c.status==="inactive"
+).length;
+
+const expired =
+data.filter(c=>
+
+c.expiry &&
+
+new Date(c.expiry)<new Date()
+
+).length;
+
+const uses =
+data.reduce(
+
+(total,c)=>
+
+total+
+Number(
+c.usedCount||0
+),
+
+0
+
+);
+
+stats.innerHTML=`
+
+<div class="card">
+
+<h3>Total</h3>
+
+<div class="card-value">
+
+${data.length}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Active</h3>
+
+<div class="card-value">
+
+${active}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Inactive</h3>
+
+<div class="card-value">
+
+${inactive}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Expired</h3>
+
+<div class="card-value">
+
+${expired}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Total Uses</h3>
+
+<div class="card-value">
+
+${uses}
+
+</div>
+
+</div>
+
+`;
 
 }
 
@@ -169,13 +407,34 @@ try{
 
     await addCoupon({
 
-        code,
-        discount,
-        limit,
-        used:0,
-        status:"active"
+code,
 
-    });
+discount,
+
+limit,
+
+usedCount:0,
+
+expiry:
+document.getElementById(
+"expiry"
+).value,
+
+maxPerCustomer:
+Number(
+document.getElementById(
+"maxPerCustomer"
+).value||0
+),
+
+allowedCustomer:
+document.getElementById(
+"allowedCustomer"
+).value.trim(),
+
+status:"active"
+
+});
 
 }
 catch(error){
@@ -203,8 +462,37 @@ document
 "limit"
 ).value="";
 
+document
+.getElementById(
+"expiry"
+).value="";
+
+document
+.getElementById(
+"maxPerCustomer"
+).value="";
+
+document
+.getElementById(
+"allowedCustomer"
+).value="";
+
 load();
 
 };
 
+search.oninput=
+load;
+
+statusFilter.onchange=
+load;
+
 load();
+
+setInterval(
+
+load,
+
+30000
+
+);

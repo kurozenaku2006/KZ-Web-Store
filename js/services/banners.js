@@ -15,6 +15,11 @@ db
 }
 from "../config/firebase.js";
 
+import {
+logActivity
+}
+from "./activity.js";
+
 const bannersRef =
 collection(
 db,
@@ -74,6 +79,18 @@ export async function addBanner(
         }
     );
 
+    await logActivity({
+
+module:"banners",
+
+action:"Banner Created",
+
+targetName:data.title,
+
+metadata:data
+
+});
+
 }
 
 export async function getBanners(){
@@ -113,6 +130,20 @@ id
 data
 );
 
+await logActivity({
+
+module:"banners",
+
+action:"Banner Updated",
+
+targetId:id,
+
+targetName:data.title,
+
+metadata:data
+
+});
+
 }
 
 export async function deleteBanner(
@@ -126,5 +157,15 @@ db,
 id
 )
 );
+
+await logActivity({
+
+module:"banners",
+
+action:"Banner Deleted",
+
+targetId:id
+
+});
 
 }

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>
+
+My Notifications
+
+</title>
+
+<link
+rel="stylesheet"
+href="/css/style.css">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<div class="container">
+
+<h1>
+
+Notifications
+
+</h1>
+
+<br>
+
+<input
+id="notificationSearch"
+placeholder="Search Notifications">
+
+<br><br>
+
+<select
+id="notificationFilter">
+
+<option value="all">
+
+All
+
+</option>
+
+<option value="unread">
+
+Unread
+
+</option>
+
+<option value="read">
+
+Read
+
+</option>
+
+<option value="archived">
+
+Archived
+
+</option>
+
+</select>
+
+<br><br>
+
+<div
+id="notificationList">
+
+Loading...
+
+</div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/components/navbar-loader.js"></script>
+
+<script src="/components/footer-loader.js"></script>
+
+<script
+type="module"
+src="/js/customer/notifications.js">
+</script>
+
+</body>
+
+</html>

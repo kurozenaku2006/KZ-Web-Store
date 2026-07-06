@@ -19,6 +19,11 @@ import {
 }
 from "../config/firebase.js";
 
+import {
+    logActivity
+}
+from "./activity.js";
+
 const productsRef =
 collection(
     db,
@@ -130,6 +135,47 @@ export async function updateInventoryStock(
             new Date().toISOString()
         }
     );
+
+    await logActivity({
+
+    module:"inventory",
+
+    action:
+    movementType==="increase"
+    ?
+    "Inventory Increased"
+    :
+    movementType==="decrease"
+    ?
+    "Inventory Decreased"
+    :
+    "Inventory Adjusted",
+
+    targetId:productId,
+
+    targetName:productName,
+
+    metadata:{
+
+        movementType,
+
+        previousStock,
+
+        newStock,
+
+        quantity:
+        Math.abs(
+            newStock -
+            previousStock
+        ),
+
+        reason,
+
+        performedBy
+
+    }
+
+});
 
 }
 

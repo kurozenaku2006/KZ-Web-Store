@@ -15,6 +15,11 @@ import {
 }
 from "../config/firebase.js";
 
+import {
+logActivity
+}
+from "./activity.js";
+
 const rewardHistoryRef =
 collection(
     db,
@@ -72,6 +77,21 @@ export async function addRewardPoints(
     new Date().toISOString()
 }
     );
+
+    await logActivity({
+
+module:"rewards",
+
+action:"Reward Added",
+
+targetId:uid,
+
+metadata:{
+points,
+orderTotal
+}
+
+});
 
 }
 
@@ -169,6 +189,20 @@ await addDoc(
         new Date().toISOString()
     }
 );
+
+await logActivity({
+
+module:"rewards",
+
+action:"Reward Redeemed",
+
+targetId:uid,
+
+metadata:{
+points
+}
+
+});
 
 return true;
 

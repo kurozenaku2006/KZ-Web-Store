@@ -12,7 +12,7 @@ content="width=device-width,initial-scale=1">
 
 <title>
 
-Coupons
+Report Center
 
 </title>
 
@@ -36,112 +36,135 @@ class="sidebar"></div>
 
 <h1>
 
-Coupons
+Report Center
 
 </h1>
 
 <br>
 
-<div
-id="couponStats"
-class="cards-grid">
+<div class="cards-grid">
 
-Loading Statistics...
+<div class="card">
 
-</div>
+<h3>
 
-<br>
+Export CSV
 
-<input
-id="code"
-placeholder="Coupon Code">
+</h3>
 
-<br><br>
+<p>
 
-<input
-id="discount"
-type="number"
-placeholder="Discount %">
+Download complete analytics as CSV.
 
-<br><br>
-
-<input
-id="limit"
-type="number"
-placeholder="Usage Limit">
-
-<br><br>
-
-<input
-id="expiry"
-type="date">
-
-<br><br>
-
-<input
-id="maxPerCustomer"
-type="number"
-placeholder="Max Uses Per Customer">
-
-<br><br>
-
-<input
-id="allowedCustomer"
-placeholder="Restricted Customer UID (optional)">
-
-<br><br>
+</p>
 
 <button
-id="addBtn">
-
-Create Coupon
-
-</button>
-
-<hr>
-
-<input
-id="couponSearch"
-placeholder="Search coupon">
-
-<select
-id="couponStatus">
-
-<option value="all">
-All
-</option>
-
-<option value="active">
-Active
-</option>
-
-<option value="inactive">
-Inactive
-</option>
-
-</select>
-
-<button
-onclick="exportCoupons()">
+id="exportCsvBtn">
 
 Export CSV
 
 </button>
 
-<hr>
+</div>
 
-<div
-id="couponStats"
-class="cards-grid">
+<div class="card">
 
-Loading...
+<h3>
+
+Export PDF
+
+</h3>
+
+<p>
+
+Generate printable business report.
+
+</p>
+
+<button
+id="exportPdfBtn">
+
+Export PDF
+
+</button>
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Scheduled Reports
+
+</h3>
+
+<p>
+
+Automatic report generation.
+
+</p>
+
+<select
+id="scheduleFrequency">
+
+<option value="disabled">
+
+Disabled
+
+</option>
+
+<option value="daily">
+
+Daily
+
+</option>
+
+<option value="weekly">
+
+Weekly
+
+</option>
+
+<option value="monthly">
+
+Monthly
+
+</option>
+
+</select>
+
+<br><br>
+
+<button
+id="saveScheduleBtn">
+
+Save Schedule
+
+</button>
+
+</div>
 
 </div>
 
 <br>
 
 <div
-id="couponList">
+class="activity-box">
+
+<h2>
+
+Latest Report Summary
+
+</h2>
+
+<br>
+
+<div
+id="reportSummary">
+
+Loading...
+
+</div>
 
 </div>
 
@@ -159,12 +182,12 @@ id="couponList">
 
 <script
 type="module"
-src="/js/admin/coupons.js">
+src="/js/admin/reports.js">
 </script>
 
 <script type="module">
 
-import {
+import{
 requireAdmin
 }
 from "/js/services/guard.js";

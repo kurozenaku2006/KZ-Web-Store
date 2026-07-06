@@ -211,16 +211,53 @@ return activity.filter(item=>
 
 export async function getActivityStatistics(){
 
-const activity =
+const activity=
 await getActivity();
 
-const stats={};
+const today=
+new Date()
+.toISOString()
+.split("T")[0];
 
-activity.forEach(item=>{
+const stats={
 
-stats[item.module]??=0;
+total:activity.length,
 
-stats[item.module]++;
+today:0,
+
+products:0,
+
+orders:0,
+
+customers:0,
+
+inventory:0,
+
+claims:0,
+
+coupons:0,
+
+banners:0,
+
+rewards:0
+
+};
+
+activity.forEach(log=>{
+
+if(
+(log.createdAt||"").startsWith(today)
+){
+
+stats.today++;
+
+}
+
+if(stats[log.module]!==undefined){
+
+stats[log.module]++;
+
+}
 
 });
 

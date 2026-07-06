@@ -26,6 +26,26 @@ document.getElementById(
 "orderSearch"
 );
 
+const paymentFilter =
+document.getElementById(
+"paymentFilter"
+);
+
+const dateFilter =
+document.getElementById(
+"orderDateFilter"
+);
+
+const modal =
+document.getElementById(
+"orderModal"
+);
+
+const modalContent =
+document.getElementById(
+"orderModalContent"
+);
+
 window.changeStatus =
 async function(
     orderId,
@@ -64,12 +84,25 @@ window.exportOrders =
 function(){
 
     let csv =
-    "Order ID,UID,Status,Total\n";
+"Order ID,UID,Status,Payment,Total,Created\n";
 
     allOrders.forEach(order => {
 
-        csv +=
-        `${order.id},${order.uid},${order.status},${order.total}\n`;
+       csv +=
+
+`${order.id},
+
+${order.uid},
+
+${order.status},
+
+${order.paymentStatus||"pending"},
+
+${order.total},
+
+${order.createdAt}
+
+\n`;
 
     });
 
@@ -99,18 +132,14 @@ function(){
 
 };
 
-searchBox.addEventListener(
-"input",
-e => {
+searchBox.oninput=
+renderOrders;
 
-    searchText =
-    e.target.value
-    .toLowerCase();
+paymentFilter.onchange=
+renderOrders;
 
-    renderOrders();
-
-}
-);
+dateFilter.onchange=
+renderOrders;
 
 function renderOrders(){
 
@@ -151,6 +180,42 @@ function renderOrders(){
         .includes(searchText)
 
     );
+
+}
+
+if(
+paymentFilter.value!=="all"
+){
+
+orders =
+orders.filter(order=>
+
+(order.paymentStatus||"pending")
+
+===
+
+paymentFilter.value
+
+);
+
+}
+
+if(
+dateFilter.value
+){
+
+orders =
+orders.filter(order=>
+
+(order.createdAt||"")
+
+.startsWith(
+
+dateFilter.value
+
+)
+
+);
 
 }
 
@@ -203,11 +268,45 @@ function renderOrders(){
             </p>
 
             <p>
-                Created:
-                ${order.createdAt}
-            </p>
+
+Created :
+
+${
+
+order.createdAt
+
+?
+
+new Date(
+order.createdAt
+).toLocaleString()
+
+:
+
+"-"
+
+}
+
+</p>
+
+<p>
+
+Payment :
+
+${order.paymentStatus||"pending"}
+
+</p>
 
             <br>
+
+            <button
+onclick="viewOrder('${order.id}')">
+
+View Details
+
+</button>
+
+<br><br>
 
             ${
                 completed
@@ -369,4 +468,186 @@ renderOrders();
 
 }
 
+window.closeOrderModal=
+function(){
+
+modal.style.display="none";
+
+};
+
+window.viewOrder=
+function(id){
+
+const order=
+allOrders.find(
+o=>o.id===id
+);
+
+if(!order){
+
+return;
+
+}
+
+modal.style.display=
+"block";
+
+modalContent.innerHTML=`
+
+<p>
+
+<b>
+
+Order ID
+
+</b>
+
+</p>
+
+<p>
+
+${order.id}
+
+</p>
+
+<hr>
+
+<p>
+
+Customer
+
+</p>
+
+<p>
+
+${order.uid}
+
+</p>
+
+<hr>
+
+<p>
+
+Status
+
+</p>
+
+<p>
+
+${order.status}
+
+</p>
+
+<hr>
+
+<p>
+
+Payment
+
+</p>
+
+<p>
+
+${order.paymentStatus||"pending"}
+
+</p>
+
+<hr>
+
+<p>
+
+Created
+
+</p>
+
+<p>
+
+${
+
+order.createdAt
+
+?
+
+new Date(
+order.createdAt
+).toLocaleString()
+
+:
+
+"-"
+
+}
+
+</p>
+
+<hr>
+
+<p>
+
+Items
+
+</p>
+
+${
+
+(order.items||[])
+
+.map(item=>`
+
+<div class="activity-item">
+
+${item.name}
+
+<br>
+
+Qty :
+
+${item.quantity}
+
+<br>
+
+₹${item.price}
+
+</div>
+
+`)
+
+.join("")
+
+}
+
+<hr>
+
+<p>
+
+Timeline
+
+</p>
+
+<div class="activity-item">
+
+Created
+
+<br>
+
+↓
+
+<br>
+
+${order.status}
+
+</div>
+
+`;
+
+};
+
 loadOrders();
+
+setInterval(
+
+loadOrders,
+
+30000
+
+);

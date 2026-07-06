@@ -96,6 +96,35 @@ Loading Statistics...
 
 <br>
 
+<select
+id="paymentFilter">
+
+<option value="all">
+All Payments
+</option>
+
+<option value="paid">
+Paid
+</option>
+
+<option value="pending">
+Pending
+</option>
+
+<option value="failed">
+Failed
+</option>
+
+</select>
+
+<input
+type="date"
+id="orderDateFilter">
+
+<br><br>
+
+<br>
+
 <br>
 
     <div id="ordersContainer">
@@ -110,6 +139,64 @@ Loading Statistics...
 type="module"
 src="/js/admin/orders.js">
 </script>
+
+<div
+id="orderModal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.5);
+overflow:auto;
+padding:40px;
+box-sizing:border-box;
+z-index:9999;
+">
+
+<div
+class="card"
+style="
+max-width:900px;
+margin:auto;
+">
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<h2>
+
+Order Details
+
+</h2>
+
+<button
+onclick="closeOrderModal()">
+
+Close
+
+</button>
+
+</div>
+
+<hr>
+
+<div
+id="orderModalContent">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
 
 </body>
 

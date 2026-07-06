@@ -19,14 +19,47 @@ document.getElementById(
 "sendBtn"
 );
 
+const search =
+document.getElementById(
+"notificationSearch"
+);
+
+let notifications = [];
+
 async function load(){
 
-const notifications =
+notifications =
 await getNotifications();
+
+const keyword =
+search.value
+.toLowerCase();
+
+let data =
+[...notifications];
+
+if(keyword){
+
+data =
+data.filter(item=>
+
+(item.title||"")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.message||"")
+.toLowerCase()
+.includes(keyword)
+
+);
+
+}
 
 list.innerHTML="";
 
-notifications.forEach(item=>{
+data.forEach(item=>{
 
 list.innerHTML+=`
 
@@ -111,6 +144,18 @@ document
 "target"
 ).value;
 
+const scheduleAt =
+document
+.getElementById(
+"scheduleAt"
+).value;
+
+const customerUid =
+document
+.getElementById(
+"customerUid"
+).value.trim();
+
 if(
 !title||
 !message
@@ -128,11 +173,17 @@ try{
 
     await createNotification({
 
-        title,
-        message,
-        target
+title,
 
-    });
+message,
+
+target,
+
+scheduleAt,
+
+customerUid
+
+});
 
 }
 catch(error){
@@ -158,5 +209,8 @@ document
 load();
 
 };
+
+search.oninput =
+load;
 
 load();

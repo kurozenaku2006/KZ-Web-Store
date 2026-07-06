@@ -14,6 +14,8 @@ from "../services/customers.js";
 
 let customers=[];
 
+let selectedCustomers=[];
+
 const container=
 document.getElementById(
 "customersContainer"
@@ -62,6 +64,11 @@ document.getElementById(
 const stats=
 document.getElementById(
 "customerStats"
+);
+
+const leaderboards=
+document.getElementById(
+"customerLeaderboards"
 );
 
 async function load(){
@@ -292,6 +299,165 @@ ${data.totalRewardBalance}
 
 `;
 
+leaderboards.innerHTML=`
+
+<div class="card">
+
+<h3>
+
+Top Spenders
+
+</h3>
+
+${
+data.topSpenders
+.map(customer=>
+
+`<p>
+
+${customer.name}
+
+—
+
+₹${customer.totalSpend}
+
+</p>`
+
+)
+
+.join("")
+}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Highest Rewards
+
+</h3>
+
+${
+data.highestRewardCustomers
+.map(customer=>
+
+`<p>
+
+${customer.name}
+
+—
+
+${customer.rewardPoints||0}
+
+</p>`
+
+)
+
+.join("")
+}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Most Claims
+
+</h3>
+
+${
+data.mostClaimCustomers
+.map(customer=>
+
+`<p>
+
+${customer.name}
+
+—
+
+${customer.totalClaims}
+
+</p>`
+
+)
+
+.join("")
+}
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Returning Customers
+
+</h3>
+
+<div class="card-value">
+
+${data.returningCustomers}
+
+</div>
+
+</div>
+
+`;
+
+stats.innerHTML+=`
+
+<div class="card">
+
+<h3>
+
+Returning Customers
+
+</h3>
+
+<div class="card-value">
+
+${data.returningCustomers}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Top Spender
+
+</h3>
+
+<div class="card-value">
+
+₹${data.highestSpend}
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>
+
+Highest Rewards
+
+</h3>
+
+<div class="card-value">
+
+${data.highestRewardPoints}
+
+</div>
+
+</div>
+
+`;
+
 }
 
 function render(){
@@ -461,6 +627,20 @@ data.length===0
 data.map(customer=>`
 
 <div class="card">
+
+<label>
+
+<input
+type="checkbox"
+class="customerSelect"
+value="${customer.id}"
+${selectedCustomers.includes(customer.id)?"checked":""}>
+
+Select
+
+</label>
+
+<br><br>
 
 <h3>
 
@@ -643,6 +823,42 @@ Delete
 
 }
 
+document
+.querySelectorAll(
+".customerSelect"
+)
+.forEach(box=>{
+
+box.onchange=()=>{
+
+if(box.checked){
+
+if(
+!selectedCustomers.includes(
+box.value
+)
+){
+
+selectedCustomers.push(
+box.value
+);
+
+}
+
+}
+else{
+
+selectedCustomers=
+selectedCustomers.filter(
+id=>id!==box.value
+);
+
+}
+
+};
+
+});
+
 window.exportCustomers =
 function(){
 
@@ -709,6 +925,195 @@ riskFilter.onchange=
 render;
 
 load();
+
+document.getElementById(
+"selectAllCustomers"
+).onclick=()=>{
+
+if(
+selectedCustomers.length===
+customers.length
+){
+
+selectedCustomers=[];
+
+}
+else{
+
+selectedCustomers=
+customers.map(
+customer=>customer.id
+);
+
+}
+
+render();
+
+};
+
+document.getElementById(
+"bulkEnableCustomers"
+).onclick=
+async()=>{
+
+if(
+selectedCustomers.length===0
+){
+
+alert(
+"No customers selected."
+);
+
+return;
+
+}
+
+for(const id of selectedCustomers){
+
+await updateCustomerStatus(
+id,
+"active"
+);
+
+}
+
+selectedCustomers=[];
+
+await load();
+
+};
+
+document.getElementById(
+"bulkDisableCustomers"
+).onclick=
+async()=>{
+
+if(
+selectedCustomers.length===0
+){
+
+alert(
+"No customers selected."
+);
+
+return;
+
+}
+
+for(const id of selectedCustomers){
+
+await updateCustomerStatus(
+id,
+"disabled"
+);
+
+}
+
+selectedCustomers=[];
+
+await load();
+
+};
+
+document.getElementById(
+"bulkDeleteCustomers"
+).onclick=
+async()=>{
+
+if(
+selectedCustomers.length===0
+){
+
+alert(
+"No customers selected."
+);
+
+return;
+
+}
+
+if(
+!confirm(
+"Delete selected customers?"
+)
+){
+
+return;
+
+}
+
+for(const id of selectedCustomers){
+
+await deleteCustomer(
+id
+);
+
+}
+
+selectedCustomers=[];
+
+await load();
+
+};
+
+document.getElementById(
+"bulkExportCustomers"
+).onclick=()=>{
+
+const selected=
+customers.filter(
+customer=>
+selectedCustomers.includes(
+customer.id
+)
+);
+
+const csv=[
+
+"Name,Email,Orders,Claims,Spend,Status"
+
+];
+
+selected.forEach(customer=>{
+
+csv.push(
+
+`"${customer.name}","${customer.email}",${customer.totalOrders},${customer.totalClaims},${customer.totalSpend},"${customer.status||"active"}"`
+
+);
+
+});
+
+const blob=
+new Blob(
+[csv.join("\n")],
+{
+type:"text/csv"
+}
+);
+
+const url=
+URL.createObjectURL(
+blob
+);
+
+const a=
+document.createElement(
+"a"
+);
+
+a.href=url;
+
+a.download=
+"selected-customers.csv";
+
+a.click();
+
+URL.revokeObjectURL(
+url
+);
+
+};
 
 window.closeCustomer=function(){
 
@@ -879,6 +1284,42 @@ Save Customer
 Customer Summary
 
 </h3>
+
+<p>
+
+Customer Lifetime Value :
+
+<b>
+
+₹${data.customer.totalSpend}
+
+</b>
+
+</p>
+
+<p>
+
+Average Order Value :
+
+<b>
+
+₹${data.customer.averageOrder}
+
+</b>
+
+</p>
+
+<p>
+
+Returning Customer :
+
+<b>
+
+${data.customer.totalOrders>1?"Yes":"No"}
+
+</b>
+
+</p>
 
 <div class="activity-item">
 
@@ -1242,136 +1683,72 @@ Activity Timeline
 </h3>
 
 ${
-
 data.activity.length===0
-
 ?
 
 "<p>No Activity Found</p>"
 
 :
 
-data.activity.map(item=>`
+data.activity.map(log=>`
 
 <div class="activity-item">
 
 <p>
 
-<b>
-
-${item.type.toUpperCase()}
-
-</b>
+<b>${log.action}</b>
 
 </p>
 
-${
-item.status
-?
+<p>
 
-`<p>Status : ${item.status}</p>`
+Module :
+${log.module}
 
-:
-
-""
-}
-
-${
-item.rewardType
-?
-
-`<p>Reward : ${item.rewardType}</p>`
-
-:
-
-""
-}
-
-${
-item.amount!==undefined
-?
-
-`<p>Amount : ₹${item.amount}</p>`
-
-:
-
-""
-}
-
-${
-item.points!==undefined
-?
-
-`<p>Points : ${item.points}</p>`
-
-:
-
-""
-}
+</p>
 
 <p>
 
-${
+Target :
+${log.targetName||"-"}
 
-item.date
+</p>
 
-?
+<p>
 
-new Date(item.date).toLocaleString()
+By :
+${log.performedBy}
 
-:
+</p>
 
-"-"
+<p>
 
-}
+${new Date(
+log.createdAt
+).toLocaleString()}
 
 </p>
 
 </div>
 
 `).join("")
-
-}
-
-${
-
-(data.activity || []).length===0
-
-?
-
-"<p>No Activity</p>"
-
-:
-
-(data.activity || []).map(item=>`
-
-<div class="activity-item">
-
-<p><b>${item.type.toUpperCase()}</b></p>
-
-<p>${item.status || item.rewardType || ""}</p>
-
-<p>
-
-${item.amount ? "₹"+item.amount : ""}
-
-${item.points ? "Points : "+item.points : ""}
-
-</p>
-
-<p>
-
-${item.date || "-"}
-
-</p>
-
-</div>
-
-`).join("")
-
 }
 
 <hr>
+
+<hr>
+
+<h3>
+
+Login History
+
+</h3>
+
+<div class="activity-item">
+
+Future Ready
+
+</div>
 
 <h3>
 
@@ -1420,13 +1797,19 @@ ${note.note}
 
 <p>
 
-${
+<b>
 
-new Date(
+${note.admin||"Admin"}
+
+</b>
+
+</p>
+
+<p>
+
+${new Date(
 note.createdAt
-).toLocaleString()
-
-}
+).toLocaleString()}
 
 </p>
 
@@ -1588,7 +1971,8 @@ return;
 await addCustomerNote(
 
 uid,
-note
+note,
+"Administrator"
 
 );
 

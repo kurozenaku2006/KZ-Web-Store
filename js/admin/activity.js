@@ -58,6 +58,8 @@ async function load(){
 logs=
 await getActivity();
 
+page=1;
+
 const actions=[
 
 ...new Set(
@@ -101,6 +103,14 @@ if(keyword){
 data=data.filter(
 log=>
 
+    (log.module||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+||
+
 (log.action||"")
 .toLowerCase()
 .includes(keyword)
@@ -109,6 +119,14 @@ log=>
 
 (log.targetName||"")
 .toLowerCase()
+.includes(keyword)
+
+||
+
+(log.performedBy||"")
+
+.toLowerCase()
+
 .includes(keyword)
 
 );
@@ -209,27 +227,31 @@ current.map(log=>`
 
 <b>
 
-${log.module}
+${log.action}
 
 </b>
 
 <br>
 
-${log.action}
+Module :
+
+${log.module}
 
 <br>
 
-${log.targetName}
+Target :
+
+${log.targetName||"-"}
 
 <br>
 
-${log.performedBy}
+Performed By :
+
+${log.performedBy||"-"}
 
 <br>
 
-${new Date(
-log.createdAt
-).toLocaleString()}
+${new Date(log.createdAt).toLocaleString()}
 
 </div>
 
@@ -295,9 +317,35 @@ render();
 
 window.nextPage=()=>{
 
+const pages=
+
+Math.max(
+
+1,
+
+Math.ceil(
+
+logs.filter(log=>{
+
+return true;
+
+}).length
+
+/
+
+perPage
+
+)
+
+);
+
+if(page<pages){
+
 page++;
 
 render();
+
+}
 
 };
 
@@ -305,7 +353,7 @@ window.exportActivity=()=>{
 
 const csv=[
 
-"Module,Action,Target,Performed By,Date"
+"Module,Action,Target,Performed By,Date,Target ID"
 
 ];
 
@@ -313,7 +361,7 @@ logs.forEach(log=>{
 
 csv.push(
 
-`"${log.module}","${log.action}","${log.targetName}","${log.performedBy}","${log.createdAt}"`
+`"${log.module}","${log.action}","${log.targetName}","${log.performedBy}","${log.createdAt}","${log.targetId}"`
 
 );
 
@@ -362,33 +410,25 @@ return;
 const stats =
 await getActivityStatistics();
 
-statsBox.innerHTML =
-
-Object.keys(stats).length===0
-
-?
-
-"<p>No Statistics</p>"
-
-:
+statsBox.innerHTML=
 
 Object.entries(stats)
 
 .map(
 
-([module,count])=>`
+([title,value])=>`
 
 <div class="card">
 
 <h3>
 
-${module}
+${title.replace("_"," ").toUpperCase()}
 
 </h3>
 
 <div class="card-value">
 
-${count}
+${value}
 
 </div>
 
@@ -396,9 +436,7 @@ ${count}
 
 `
 
-)
-
-.join("");
+).join("");
 
 }
 
@@ -409,7 +447,25 @@ load();
 
 setInterval(
 
-load,
+()=>{
+
+const scroll=
+
+window.scrollY;
+
+load().then(()=>{
+
+window.scrollTo(
+
+0,
+
+scroll
+
+);
+
+});
+
+},
 
 30000
 

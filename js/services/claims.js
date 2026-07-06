@@ -21,6 +21,11 @@ import {
 }
 from "../config/firebase.js";
 
+import {
+    logActivity
+}
+from "./activity.js";
+
 const claimsRef =
 collection(
     db,
@@ -171,5 +176,30 @@ export async function updateClaimStatus(
             new Date().toISOString()
         }
     );
+
+    await logActivity({
+
+    module:"claims",
+
+    action:
+    status==="approved"
+    ?
+    "Claim Approved"
+    :
+    status==="rejected"
+    ?
+    "Claim Rejected"
+    :
+    "Claim Updated",
+
+    targetId:id,
+
+    targetName:claim.uid,
+
+    metadata:{
+        status
+    }
+
+});
 
 }

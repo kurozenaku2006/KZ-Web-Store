@@ -43,6 +43,12 @@ Notifications
 <br>
 
 <input
+id="notificationSearch"
+placeholder="Search Notifications">
+
+<br><br>
+
+<input
 id="title"
 placeholder="Title">
 
@@ -70,7 +76,29 @@ Customers
 Admins
 </option>
 
+<option value="scheduled">
+Scheduled
+</option>
+
+<option value="archived">
+Archived
+</option>
+
 </select>
+
+<br><br>
+
+<input
+type="datetime-local"
+id="scheduleAt">
+
+<br><br>
+
+<input
+id="customerUid"
+placeholder="Customer UID (optional)">
+
+<br><br>
 
 <button
 id="sendBtn">

@@ -17,6 +17,12 @@ db
 }
 from "../config/firebase.js";
 
+import {
+logActivity,
+getActivity
+}
+from "./activity.js";
+
 export async function getCustomers(){
 
 const users=
@@ -429,7 +435,47 @@ customers.length
 
 :
 
-0
+0,
+
+returningCustomers:
+
+customers.filter(
+customer=>
+customer.totalOrders>1
+).length,
+
+topSpenders:
+
+customers
+.slice()
+.sort(
+(a,b)=>
+b.totalSpend-
+a.totalSpend
+)
+.slice(0,5),
+
+highestRewardCustomers:
+
+customers
+.slice()
+.sort(
+(a,b)=>
+(b.rewardPoints||0)-
+(a.rewardPoints||0)
+)
+.slice(0,5),
+
+mostClaimCustomers:
+
+customers
+.slice()
+.sort(
+(a,b)=>
+b.totalClaims-
+a.totalClaims
+)
+.slice(0,5)
 
 };
 
@@ -518,152 +564,32 @@ reward=>
 reward.uid===uid
 );
 
-const activity=[];
+const logs =
+await getActivity();
 
-customerOrders.forEach(order=>{
+const activity =
+logs
+.filter(log=>{
 
-activity.push({
+if(log.targetId===customer.id){
 
-type:"order",
+return true;
 
-status:order.status,
+}
 
-amount:Number(order.total||0),
+if(log.metadata?.uid===uid){
 
-date:order.createdAt
+return true;
 
-});
+}
 
-});
+return false;
 
-customerClaims.forEach(claim=>{
-
-activity.push({
-
-type:"claim",
-
-status:claim.status,
-
-date:claim.createdAt
-
-});
-
-});
-
-rewards.forEach(reward=>{
-
-activity.push({
-
-type:"reward",
-
-rewardType:reward.type,
-
-points:Number(reward.points||0),
-
-date:reward.createdAt
-
-});
-
-});
-
-activity.sort(
-
+})
+.sort(
 (a,b)=>
-
-new Date(b.date)-
-
-new Date(a.date)
-
-);
-
-const activity=[
-
-...customerOrders.map(order=>({
-
-type:"order",
-
-date:order.createdAt,
-
-status:order.status,
-
-amount:order.total
-
-})),
-
-...customerClaims.map(claim=>({
-
-type:"claim",
-
-date:claim.createdAt,
-
-status:claim.status
-
-})),
-
-...rewards.map(reward=>({
-
-type:"reward",
-
-date:reward.createdAt,
-
-points:reward.points,
-
-rewardType:reward.type
-
-}))
-
-].sort(
-
-(a,b)=>
-
-new Date(b.date)-
-
-new Date(a.date)
-
-);
-
-const activity = [
-
-...customerOrders.map(order=>({
-
-type:"order",
-
-status:order.status,
-
-amount:order.total,
-
-date:order.createdAt
-
-})),
-
-...customerClaims.map(claim=>({
-
-type:"claim",
-
-status:claim.status,
-
-date:claim.createdAt
-
-})),
-
-...rewards.map(reward=>({
-
-type:"reward",
-
-rewardType:reward.type,
-
-points:reward.points,
-
-date:reward.createdAt
-
-}))
-
-].sort(
-
-(a,b)=>
-
-new Date(b.date)-new Date(a.date)
-
+new Date(b.createdAt)-
+new Date(a.createdAt)
 );
 
 return{
@@ -701,6 +627,23 @@ status
 
 );
 
+await logActivity({
+
+module:"customers",
+
+action:
+status==="disabled"
+?
+"Customer Disabled"
+:
+"Customer Enabled",
+
+targetId:id,
+
+targetName:id
+
+});
+
 }
 
 export async function deleteCustomer(
@@ -716,6 +659,18 @@ id
 )
 
 );
+
+await logActivity({
+
+module:"customers",
+
+action:"Customer Deleted",
+
+targetId:id,
+
+targetName:id
+
+});
 
 }
 
@@ -743,6 +698,20 @@ new Date().toISOString()
 
 );
 
+await logActivity({
+
+module:"customers",
+
+action:"Customer Updated",
+
+targetId:id,
+
+targetName:data.name||id,
+
+metadata:data
+
+});
+
 }
 
 export async function updateCustomerRole(
@@ -768,6 +737,22 @@ new Date().toISOString()
 }
 
 );
+
+await logActivity({
+
+module:"customers",
+
+action:"Customer Role Updated",
+
+targetId:id,
+
+targetName:id,
+
+metadata:{
+role
+}
+
+});
 
 }
 
@@ -806,8 +791,11 @@ id:doc.id,
 }
 
 export async function addCustomerNote(
+
 uid,
-note
+note,
+admin="Admin"
+
 ){
 
 if(
@@ -820,7 +808,10 @@ return;
 
 await addDoc(
 
-customerNotesRef,
+collection(
+db,
+"customerNotes"
+),
 
 {
 
@@ -828,12 +819,31 @@ uid,
 
 note,
 
+admin,
+
 createdAt:
 new Date().toISOString()
 
 }
 
 );
+
+await logActivity({
+
+module:"customers",
+
+action:"Customer Note Added",
+
+targetId:uid,
+
+targetName:uid,
+
+metadata:{
+note,
+admin
+}
+
+});
 
 }
 
@@ -850,6 +860,18 @@ id
 )
 
 );
+
+await logActivity({
+
+module:"customers",
+
+action:"Customer Note Deleted",
+
+targetId:id,
+
+targetName:id
+
+});
 
 }
 
@@ -927,6 +949,22 @@ new Date().toISOString()
 }
 
 );
+
+await logActivity({
+
+module:"customers",
+
+action:"Customer Note Added",
+
+targetId:uid,
+
+targetName:uid,
+
+metadata:{
+note
+}
+
+});
 
 }
 

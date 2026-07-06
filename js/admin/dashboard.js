@@ -29,6 +29,36 @@ document.getElementById(
 "lowStockProducts"
 );
 
+const insightsBox =
+document.getElementById(
+"dashboardInsights"
+);
+
+const revenueChart =
+document.getElementById(
+"dashboardRevenueChart"
+);
+
+const salesChart =
+document.getElementById(
+"dashboardSalesChart"
+);
+
+const customerChart =
+document.getElementById(
+"customerChart"
+);
+
+const claimsChart =
+document.getElementById(
+"claimsChart"
+);
+
+const rewardChart =
+document.getElementById(
+"rewardChart"
+);
+
 async function loadDashboard(){
 
     const usersSnapshot =
@@ -103,6 +133,33 @@ claims.filter(
         );
 
     });
+
+    const deliveredOrders =
+orders.filter(
+order=>
+order.status==="delivered"
+).length;
+
+const pendingOrders =
+orders.filter(
+order=>
+order.status==="pending"
+).length;
+
+const cancelledOrders =
+orders.filter(
+order=>
+order.status==="cancelled"
+).length;
+
+const conversionRate =
+orders.length
+?
+Math.round(
+(deliveredOrders/orders.length)*100
+)
+:
+0;
 
     let highestOrder = 0;
 let lowestOrder = 0;
@@ -705,6 +762,388 @@ recentRewards.length === 0
 
 `).join("")
 }
+
+`;
+
+revenueChart.innerHTML=`
+
+<h2>
+
+Revenue Overview
+
+</h2>
+
+<br>
+
+<div class="activity-item">
+
+<p>
+
+Total Revenue
+
+</p>
+
+<h3>
+
+₹${revenue}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Average Order
+
+</p>
+
+<h3>
+
+₹${averageOrder}
+
+</h3>
+
+</div>
+
+`;
+
+salesChart.innerHTML=`
+
+<h2>
+
+Sales Overview
+
+</h2>
+
+<br>
+
+<div class="activity-item">
+
+<p>
+
+Delivered
+
+</p>
+
+<h3>
+
+${deliveredOrders}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Pending
+
+</p>
+
+<h3>
+
+${pendingOrders}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Cancelled
+
+</p>
+
+<h3>
+
+${cancelledOrders}
+
+</h3>
+
+</div>
+
+`;
+
+insightsBox.innerHTML=`
+
+<h2>
+
+Business Insights
+
+</h2>
+
+<br>
+
+<div class="activity-item">
+
+<p>
+
+Conversion Rate
+
+</p>
+
+<h3>
+
+${conversionRate}%
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Highest Order
+
+</p>
+
+<h3>
+
+₹${highestOrder}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Top Customer Spend
+
+</p>
+
+<h3>
+
+₹${topCustomerSpend}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Reward Points Issued
+
+</p>
+
+<h3>
+
+${totalRewardIssued}
+
+</h3>
+
+</div>
+
+`;
+
+customerChart.innerHTML=`
+
+<h2>
+
+Customer Overview
+
+</h2>
+
+<br>
+
+<div class="activity-item">
+
+<p>
+
+Customers
+
+</p>
+
+<h3>
+
+${users.length}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Bronze
+
+</p>
+
+<h3>
+
+${bronzeMembers}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Silver
+
+</p>
+
+<h3>
+
+${silverMembers}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Gold + Platinum
+
+</p>
+
+<h3>
+
+${goldMembers+platinumMembers}
+
+</h3>
+
+</div>
+
+`;
+
+claimsChart.innerHTML=`
+
+<h2>
+
+Claims Overview
+
+</h2>
+
+<br>
+
+<div class="activity-item">
+
+<p>
+
+Pending
+
+</p>
+
+<h3>
+
+${pendingClaims}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Approved
+
+</p>
+
+<h3>
+
+${approvedClaims}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Rejected
+
+</p>
+
+<h3>
+
+${rejectedClaims}
+
+</h3>
+
+</div>
+
+`;
+
+rewardChart.innerHTML=`
+
+<h2>
+
+Rewards Overview
+
+</h2>
+
+<br>
+
+<div class="activity-item">
+
+<p>
+
+Issued
+
+</p>
+
+<h3>
+
+${totalRewardIssued}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Redeemed
+
+</p>
+
+<h3>
+
+${totalRewardRedeemed}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Top Holder
+
+</p>
+
+<h3>
+
+${topRewardPoints}
+
+</h3>
+
+<small>
+
+${topRewardUid}
+
+</small>
+
+</div>
 
 `;
 

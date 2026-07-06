@@ -11,9 +11,15 @@ orderBy
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 import {
+auth,
 db
 }
 from "../config/firebase.js";
+
+import {
+logActivity
+}
+from "./activity.js";
 
 const notificationsRef =
 collection(
@@ -53,6 +59,16 @@ export async function createNotification(
             data.target ||
             "all",
 
+            customerUid:
+data.customerUid || "",
+
+scheduleAt:
+data.scheduleAt || "",
+
+read:false,
+
+archived:false,
+
             status:
             "active",
 
@@ -60,6 +76,29 @@ export async function createNotification(
             new Date().toISOString()
         }
     );
+
+    await logActivity({
+
+module:"notifications",
+
+action:"Notification Sent",
+
+targetName:
+data.target,
+
+metadata:{
+
+title:data.title,
+
+customerUid:
+data.customerUid || "",
+
+scheduleAt:
+data.scheduleAt || ""
+
+}
+
+});
 
 }
 
@@ -82,6 +121,49 @@ doc=>({
 id:doc.id,
 ...doc.data()
 })
+);
+
+}
+
+export async function
+getCustomerNotifications(){
+
+const snapshot=
+await getDocs(
+notificationsRef
+);
+
+const uid=
+auth.currentUser?.uid;
+
+return snapshot.docs
+.map(doc=>({
+
+id:doc.id,
+
+...doc.data()
+
+}))
+.filter(item=>
+
+!item.archived
+
+&&
+
+(
+
+item.target==="all"
+
+||
+
+item.target==="customers"
+
+||
+
+item.customerUid===uid
+
+)
+
 );
 
 }
@@ -115,5 +197,15 @@ db,
 id
 )
 );
+
+await logActivity({
+
+module:"notifications",
+
+action:"Notification Deleted",
+
+targetId:id
+
+});
 
 }

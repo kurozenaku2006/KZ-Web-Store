@@ -27,6 +27,11 @@ import {
 from "./inventory.js";
 
 import {
+    logActivity
+}
+from "./activity.js";
+
+import {
     getProductById
 }
 from "./products.js";
@@ -152,12 +157,25 @@ for(const item of order.items){
 await addDoc(
     ordersRef,
     {
-        ...order,
-        uid:user.uid,
-        status:"pending",
-        createdAt:
-        new Date().toISOString()
-    }
+    ...order,
+
+    uid:user.uid,
+
+    status:"pending",
+
+    paymentStatus:
+    "pending",
+
+    adminNote:
+    "",
+
+    createdAt:
+    new Date().toISOString(),
+
+    updatedAt:
+    new Date().toISOString()
+
+}
 );
 
 }
@@ -244,11 +262,113 @@ export async function updateOrderStatus(
         orderId
     );
 
-    await updateDoc(
-        orderRef,
-        {
-            status
-        }
-    );
+   await updateDoc(
+
+orderRef,
+
+{
+
+status,
+
+updatedAt:
+new Date().toISOString()
+
+}
+
+);
+
+    await logActivity({
+
+    module:"orders",
+
+    action:
+    status==="approved"
+    ? "Order Approved"
+    :
+    status==="rejected"
+    ? "Order Rejected"
+    :
+    status==="shipped"
+    ? "Order Shipped"
+    :
+    status==="delivered"
+    ? "Order Delivered"
+    :
+    "Order Updated",
+
+    targetId:orderId,
+
+    targetName:order.uid,
+
+    metadata:{
+        status
+    }
+
+});
+
+}
+
+export async function getOrderStatistics(){
+
+const orders=
+await getAllOrders();
+
+return{
+
+total:
+orders.length,
+
+pending:
+orders.filter(
+o=>o.status==="pending"
+).length,
+
+approved:
+orders.filter(
+o=>o.status==="approved"
+).length,
+
+shipped:
+orders.filter(
+o=>o.status==="shipped"
+).length,
+
+delivered:
+orders.filter(
+o=>o.status==="delivered"
+).length,
+
+cancelled:
+orders.filter(
+o=>
+
+o.status==="cancelled"
+
+||
+
+o.status==="rejected"
+
+).length,
+
+revenue:
+
+orders
+
+.filter(
+o=>o.status==="delivered"
+)
+
+.reduce(
+
+(total,o)=>
+
+total+
+Number(o.total||0),
+
+0
+
+)
+
+};
 
 }

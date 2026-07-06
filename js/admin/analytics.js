@@ -75,6 +75,18 @@ renderCategoryData(
 analytics.categorySales
 );
 
+renderSalesAnalytics(
+analytics
+);
+
+renderProductAnalytics(
+analytics
+);
+
+renderCustomerAnalytics(
+analytics
+);
+
 charts.innerHTML=
 
 revenueChart()
@@ -204,6 +216,307 @@ ${value} Products
 </div>`
 )
 .join("");
+
+}
+
+function renderSalesAnalytics(
+analytics
+){
+
+const container =
+document.getElementById(
+"salesAnalytics"
+);
+
+if(!container){
+
+return;
+
+}
+
+container.innerHTML=`
+
+<div class="activity-item">
+
+<b>
+
+Best Day
+
+</b>
+
+<br>
+
+${analytics.bestDay}
+
+<br>
+
+₹${analytics.bestDaySales}
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Best Month
+
+</b>
+
+<br>
+
+${analytics.bestMonth}
+
+<br>
+
+₹${analytics.bestMonthSales}
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Daily Records
+
+</b>
+
+<br>
+
+${Object.keys(
+analytics.dailySales
+).length}
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Weekly Records
+
+</b>
+
+<br>
+
+${Object.keys(
+analytics.weeklySales
+).length}
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Yearly Records
+
+</b>
+
+<br>
+
+${Object.keys(
+analytics.yearlySales
+).length}
+
+</div>
+
+`;
+
+}
+
+function renderProductAnalytics(
+analytics
+){
+
+const container=
+document.getElementById(
+"productAnalytics"
+);
+
+if(!container){
+
+return;
+
+}
+
+container.innerHTML=`
+
+<div class="activity-item">
+
+<b>
+
+Best Seller
+
+</b>
+
+<br>
+
+${analytics.bestSellingProduct?.name||"-"}
+
+<br>
+
+${analytics.bestSellingProduct?.quantity||0}
+
+ Sold
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Lowest Seller
+
+</b>
+
+<br>
+
+${analytics.worstSellingProduct?.name||"-"}
+
+<br>
+
+${analytics.worstSellingProduct?.quantity||0}
+
+ Sold
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Stock Turnover
+
+</b>
+
+<br>
+
+${analytics.stockTurnover}%
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Tracked Products
+
+</b>
+
+<br>
+
+${analytics.productRanking.length}
+
+</div>
+
+`;
+
+}
+
+function renderCustomerAnalytics(
+analytics
+){
+
+const container=
+document.getElementById(
+"customerAnalytics"
+);
+
+if(!container){
+
+return;
+
+}
+
+container.innerHTML=`
+
+<div class="activity-item">
+
+<b>
+
+New Customers
+
+</b>
+
+<br>
+
+${analytics.newCustomers}
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Returning Customers
+
+</b>
+
+<br>
+
+${analytics.returningCustomers}
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Average Lifetime Value
+
+</b>
+
+<br>
+
+₹${analytics.averageLifetimeValue}
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Average Order Value
+
+</b>
+
+<br>
+
+₹${analytics.averageOrder}
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Reward Usage
+
+</b>
+
+<br>
+
+${analytics.rewardUsage}
+
+ Points
+
+</div>
+
+<div class="activity-item">
+
+<b>
+
+Claim Rate
+
+</b>
+
+<br>
+
+${analytics.claimRate}%
+
+</div>
+
+`;
 
 }
 

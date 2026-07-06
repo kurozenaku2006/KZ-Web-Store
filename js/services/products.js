@@ -14,6 +14,11 @@ import {
 }
 from "../config/firebase.js";
 
+import {
+logActivity
+}
+from "./activity.js";
+
 const productsRef =
 collection(
     db,
@@ -22,30 +27,34 @@ collection(
 
 export async function addProduct(product){
 
-    return await addDoc(
+    const ref =
+    await addDoc(
         productsRef,
         {
-
-            name:
-            product.name,
-
-            price:
-            Number(product.price),
-
-            stock:
-            Number(product.stock),
-
-            status:
-            product.status || "active",
-
-            createdAt:
-            new Date().toISOString(),
-
-            lastUpdated:
-            new Date().toISOString()
-
+            name:product.name,
+            price:Number(product.price),
+            stock:Number(product.stock),
+            status:product.status || "active",
+            createdAt:new Date().toISOString(),
+            lastUpdated:new Date().toISOString()
         }
     );
+
+    await logActivity({
+
+        module:"products",
+
+        action:"Product Added",
+
+        targetId:ref.id,
+
+        targetName:product.name,
+
+        metadata:product
+
+    });
+
+    return ref;
 
 }
 
@@ -148,6 +157,20 @@ export async function updateProduct(
 
     );
 
+    await logActivity({
+
+module:"products",
+
+action:"Product Updated",
+
+targetId:id,
+
+targetName:data.name||id,
+
+metadata:data
+
+});
+
 }
 
 export async function deleteProduct(id){
@@ -162,5 +185,17 @@ export async function deleteProduct(id){
         )
 
     );
+
+    await logActivity({
+
+module:"products",
+
+action:"Product Deleted",
+
+targetId:id,
+
+targetName:id
+
+});
 
 }
