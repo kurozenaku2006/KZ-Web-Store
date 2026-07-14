@@ -1,15 +1,48 @@
 import{
-buildChart
+
+buildChart,
+calculatePercentages
+
 }
 from "../../components/chart.js";
 
-export function categoryChart(){
+export function categoryChart(
+
+categories={}
+
+){
+
+const rows=
+
+calculatePercentages(
+
+Object.entries(categories).map(
+
+([name,data])=>({
+
+label:name,
+
+value:data.revenue
+
+})
+
+)
+
+);
 
 return buildChart(
 
-"Category Performance",
+"Category Revenue",
 
-"<p>Category analytics graph (V12)</p>"
+rows.map(item=>({
+
+label:item.label,
+
+value:`₹${Math.round(item.value)}`,
+
+percent:item.percent
+
+}))
 
 );
 

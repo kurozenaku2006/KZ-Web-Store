@@ -13,6 +13,11 @@ import {
 }
 from "../services/auth.js";
 
+import{
+requireMaintenanceOff
+}
+from "../services/guard.js";
+
 import {
     getRewardHistory
 }
@@ -34,6 +39,9 @@ document.getElementById(
 );
 
 async function loadDashboard(){
+
+        await requireMaintenanceOff();
+
 
     const user =
     auth.currentUser;

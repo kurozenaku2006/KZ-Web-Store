@@ -275,7 +275,228 @@ b.usedCount||0
 
 0
 
+),
+
+mostUsed:
+
+coupons
+.slice()
+.sort(
+(a,b)=>
+
+Number(b.usedCount||0)-
+
+Number(a.usedCount||0)
+
 )
+.slice(0,5)
+
+};
+
+}
+
+export async function validateCoupon(
+code,
+uid,
+email
+){
+
+const snapshot=
+await getDocs(
+
+query(
+
+couponsRef,
+
+where(
+"code",
+"==",
+code
+)
+
+)
+
+);
+
+if(snapshot.empty){
+
+return{
+
+valid:false,
+
+message:"Invalid coupon."
+
+};
+
+}
+
+const coupon={
+
+id:snapshot.docs[0].id,
+
+...snapshot.docs[0].data()
+
+};
+
+if(coupon.status!=="active"){
+
+return{
+
+valid:false,
+
+message:"Coupon inactive."
+
+};
+
+}
+
+if(
+
+coupon.expiry &&
+
+new Date(coupon.expiry)<new Date()
+
+){
+
+return{
+
+valid:false,
+
+message:"Coupon expired."
+
+};
+
+}
+
+if(
+
+Number(coupon.usedCount||0)>=
+
+Number(coupon.limit||0)
+
+){
+
+return{
+
+valid:false,
+
+message:"Coupon exhausted."
+
+};
+
+}
+
+if(
+
+coupon.allowedCustomer &&
+
+coupon.allowedCustomer!==uid
+
+){
+
+return{
+
+valid:false,
+
+message:"Coupon restricted."
+
+};
+
+}
+
+if(
+
+coupon.allowedEmail &&
+
+coupon.allowedEmail.toLowerCase()!==
+
+email.toLowerCase()
+
+){
+
+return{
+
+valid:false,
+
+message:"Coupon restricted."
+
+};
+
+}
+
+if(coupon.oneTimeUse){
+
+const history=
+
+await getCouponHistory();
+
+const used=
+
+history.find(h=>
+
+h.couponId===coupon.id &&
+
+h.uid===uid
+
+);
+
+if(used){
+
+return{
+
+valid:false,
+
+message:"Already used."
+
+};
+
+}
+
+}
+
+if(
+
+coupon.maxPerCustomer>0
+
+){
+
+const history=
+
+await getCouponHistory();
+
+const count=
+
+history.filter(h=>
+
+h.couponId===coupon.id &&
+
+h.uid===uid
+
+).length;
+
+if(
+
+count>=coupon.maxPerCustomer
+
+){
+
+return{
+
+valid:false,
+
+message:"Usage limit reached."
+
+};
+
+}
+
+}
+
+return{
+
+valid:true,
+
+...coupon
 
 };
 

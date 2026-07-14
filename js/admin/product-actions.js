@@ -116,14 +116,99 @@ await refreshProducts();
 
         }
 
-        await updateProduct(
-            id,
-            {
-                name:newName,
-                price:newPrice,
-                stock:newStock
-            }
-        );
+        const newCategory=
+
+prompt(
+
+"Category",
+
+product.category||""
+
+);
+
+if(newCategory===null){
+
+return;
+
+}
+
+const newBrand=
+
+prompt(
+
+"Brand",
+
+product.brand||""
+
+);
+
+if(newBrand===null){
+
+return;
+
+}
+
+        const flashEnabled=
+confirm(
+"Enable Flash Sale?"
+);
+
+let flashDiscount=
+product.flashDiscount||0;
+
+let flashStart=
+product.flashSaleStart||"";
+
+let flashEnd=
+product.flashSaleEnd||"";
+
+if(flashEnabled){
+
+flashDiscount=
+Number(
+prompt(
+"Flash Discount %",
+flashDiscount
+)
+)||0;
+
+flashStart=
+prompt(
+"Flash Start (YYYY-MM-DDTHH:mm)",
+flashStart
+)||"";
+
+flashEnd=
+prompt(
+"Flash End (YYYY-MM-DDTHH:mm)",
+flashEnd
+)||"";
+
+}
+
+await updateProduct(
+    id,
+    {
+        name:newName,
+        price:newPrice,
+        stock:newStock,
+
+category:newCategory,
+
+brand:newBrand,
+
+        flashSale:
+        flashEnabled,
+
+        flashDiscount,
+
+        flashSaleStart:
+        flashStart,
+
+        flashSaleEnd:
+        flashEnd
+    }
+);
 
         await logActivity({
 

@@ -4,7 +4,9 @@ createSupportTicket,
 
 getCustomerSupportTickets,
 
-updateSupportStatus
+updateSupportStatus,
+
+addSupportReply
 
 }
 from "../services/support.js";
@@ -25,6 +27,8 @@ document.getElementById(
 );
 
 let tickets=[];
+
+let selectedTicket="";
 
 async function load(){
 
@@ -107,6 +111,48 @@ ${ticket.priority||"Medium"}
 </p>
 
 <button
+onclick="selectTicket('${ticket.id}')">
+
+Reply
+
+</button>
+
+<br><br>
+
+${
+(ticket.replies||[])
+
+.map(reply=>`
+
+<div
+style="margin-left:15px">
+
+<b>
+
+${reply.sender}
+
+</b>
+
+<br>
+
+${reply.message}
+
+<br>
+
+<small>
+
+${reply.createdAt}
+
+</small>
+
+<hr>
+
+</div>
+
+`).join("")
+}
+
+<button
 onclick="closeTicket('${ticket.id}')">
 
 Close
@@ -121,6 +167,13 @@ Close
 
 }
 
+window.selectTicket=
+function(id){
+
+selectedTicket=id;
+
+};
+
 window.closeTicket=
 async function(id){
 
@@ -132,6 +185,8 @@ id,
 load();
 
 }
+
+
 
 createBtn.onclick=
 async()=>{
@@ -146,6 +201,11 @@ document.getElementById(
 message:
 document.getElementById(
 "message"
+).value,
+
+priority:
+document.getElementById(
+"priority"
 ).value
 
 });
@@ -166,3 +226,40 @@ search.oninput=
 render;
 
 load();
+
+document
+.getElementById(
+"sendReply"
+)
+.onclick=
+async()=>{
+
+if(!selectedTicket){
+
+alert(
+"Select a ticket first."
+);
+
+return;
+
+}
+
+await addSupportReply(
+
+selectedTicket,
+
+document
+.getElementById(
+"replyMessage"
+).value
+
+);
+
+document
+.getElementById(
+"replyMessage"
+).value="";
+
+load();
+
+};

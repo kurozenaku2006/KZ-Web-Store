@@ -1,6 +1,10 @@
 import {
     getAllClaims,
-    updateClaimStatus
+    updateClaimStatus,
+    getClaimTimeline,
+    getClaimNotes,
+    addClaimNote,
+    deleteClaimNote
 }
 from "../services/claims.js";
 
@@ -164,13 +168,27 @@ function render(){
 let data=[...claims];
 
 const keyword=
-search.value.toLowerCase();
+search.value
+.trim()
+.toLowerCase();
+
+const dateFilter=
+
+document.getElementById(
+"claimDate"
+)?.value || "";
 
 if(keyword){
 
 data=data.filter(claim=>
 
-(claim.reason||"")
+(claim.id||"")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(claim.uid||"")
 .toLowerCase()
 .includes(keyword)
 
@@ -185,6 +203,26 @@ data=data.filter(claim=>
 (claim.productId||"")
 .toLowerCase()
 .includes(keyword)
+
+||
+
+(claim.reason||"")
+.toLowerCase()
+.includes(keyword)
+
+);
+
+}
+
+if(dateFilter){
+
+data=data.filter(claim=>
+
+(claim.createdAt||"")
+
+.startsWith(
+dateFilter
+)
 
 );
 
@@ -312,11 +350,38 @@ Admin Notes
 
 </h4>
 
-<div class="activity-item">
+<div
+id="notes-${claim.id}">
 
-${claim.note || "No Notes"}
+Loading...
 
 </div>
+
+<textarea
+id="note-${claim.id}"
+placeholder="Add admin note"
+style="width:100%;height:70px;">
+</textarea>
+
+<br><br>
+
+<button
+onclick="saveClaimNote('${claim.id}')">
+
+Add Note
+
+</button>
+
+<hr>
+
+<div
+id="timeline-${claim.id}">
+
+Loading Timeline...
+
+</div>
+
+<hr>
 
 <button
 onclick="approveClaim('${claim.id}')">
@@ -337,6 +402,125 @@ Reject
 <br>
 
 `).join("");
+
+data.forEach(async claim=>{
+
+const notes=
+await getClaimNotes(
+claim.id
+);
+
+const timeline=
+await getClaimTimeline(
+claim.id
+);
+
+const notesDiv=
+document.getElementById(
+`notes-${claim.id}`
+);
+
+if(notesDiv){
+
+notesDiv.innerHTML=
+
+notes.length===0
+
+?
+
+"<p>No Notes</p>"
+
+:
+
+notes.map(note=>`
+
+<div class="activity-item">
+
+<p>
+
+${note.note}
+
+</p>
+
+<p>
+
+${note.admin||"Administrator"}
+
+</p>
+
+<p>
+
+${new Date(
+note.createdAt
+).toLocaleString()}
+
+</p>
+
+<button
+onclick="removeClaimNote('${note.id}')">
+
+Delete
+
+</button>
+
+</div>
+
+`).join("");
+
+}
+
+const timelineDiv=
+document.getElementById(
+`timeline-${claim.id}`
+);
+
+if(timelineDiv){
+
+timelineDiv.innerHTML=
+
+timeline.length===0
+
+?
+
+"<p>No Timeline</p>"
+
+:
+
+timeline.map(event=>`
+
+<div class="activity-item">
+
+<p>
+
+<b>
+
+${event.action}
+
+</b>
+
+</p>
+
+<p>
+
+${event.performedBy}
+
+</p>
+
+<p>
+
+${new Date(
+event.createdAt
+).toLocaleString()}
+
+</p>
+
+</div>
+
+`).join("");
+
+}
+
+});
 
 }
 
@@ -364,8 +548,78 @@ async function(id){
 
 }
 
+window.saveClaimNote=
+async function(claimId){
+
+const textarea=
+document.getElementById(
+`note-${claimId}`
+);
+
+const note=
+textarea.value.trim();
+
+if(!note){
+
+alert(
+"Enter a note."
+);
+
+return;
+
+}
+
+await addClaimNote(
+
+claimId,
+
+note,
+
+"Administrator"
+
+);
+
+await loadClaims();
+
+};
+
+window.removeClaimNote=
+async function(id){
+
+if(
+!confirm(
+"Delete this note?"
+)
+){
+
+return;
+
+}
+
+await deleteClaimNote(
+id
+);
+
+await loadClaims();
+
+};
+
 search.oninput=
 loadClaims;
+
+const claimDate=
+
+document.getElementById(
+"claimDate"
+);
+
+if(claimDate){
+
+claimDate.onchange=
+
+loadClaims;
+
+}
 
 document.getElementById(
 "claimStatusFilter"
@@ -380,7 +634,7 @@ const csv=[
 
 ];
 
-allClaims.forEach(claim=>{
+claims.forEach(claim=>{
 
 csv.push(
 

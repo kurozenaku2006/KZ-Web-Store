@@ -199,3 +199,308 @@ targetName:id
 });
 
 }
+
+export async function getRelatedProducts(productId){
+
+const products=
+await getProducts();
+
+return products
+.filter(product=>
+product.id!==productId
+)
+.slice(0,4);
+
+}
+
+export async function searchProducts(keyword){
+
+const products=
+await getProducts();
+
+return products.filter(product=>
+
+(product.name||"")
+
+.toLowerCase()
+
+.includes(
+
+keyword.toLowerCase()
+
+)
+
+);
+
+}
+
+export async function getFeaturedProducts(){
+
+const products=
+await getProducts();
+
+return [...products]
+
+.sort(
+
+(a,b)=>
+
+Number(b.stock||0)-
+
+Number(a.stock||0)
+
+)
+
+.slice(0,4);
+
+}
+
+export async function getNewestProducts(){
+
+const products=
+await getProducts();
+
+return [...products]
+
+.sort(
+
+(a,b)=>
+
+new Date(
+b.createdAt||0
+)-
+
+new Date(
+a.createdAt||0
+)
+
+);
+
+}
+
+export async function getPopularProducts(){
+
+const products=
+await getProducts();
+
+return [...products]
+
+.sort(
+
+(a,b)=>
+
+Number(b.stock||0)-
+
+Number(a.stock||0)
+
+);
+
+}
+
+export function getFlashPrice(product){
+
+const now=Date.now();
+
+const start=
+
+product.flashSaleStart
+?
+
+new Date(
+product.flashSaleStart
+).getTime()
+
+:
+
+0;
+
+const end=
+
+product.flashSaleEnd
+?
+
+new Date(
+product.flashSaleEnd
+).getTime()
+
+:
+
+0;
+
+if(
+
+product.flashSale===true &&
+
+now>=start &&
+
+now<=end
+
+){
+
+const discount=
+
+Number(
+product.flashDiscount||0
+);
+
+return Math.round(
+
+Number(product.price)
+
+-
+
+(
+
+Number(product.price)
+
+*
+
+discount
+
+/
+
+100
+
+)
+
+);
+
+}
+
+return Number(
+product.price
+);
+
+}
+
+export function isFlashSaleActive(product){
+
+if(
+!product.flashSale
+){
+
+return false;
+
+}
+
+const now=
+Date.now();
+
+return(
+
+now>=new Date(
+product.flashSaleStart
+).getTime()
+
+&&
+
+now<=new Date(
+product.flashSaleEnd
+).getTime()
+
+);
+
+}
+
+export function getSearchSuggestions(
+
+products,
+keyword
+
+){
+
+keyword=
+
+(keyword||"")
+
+.trim()
+
+.toLowerCase();
+
+if(!keyword){
+
+return[];
+
+}
+
+return products
+
+.filter(product=>
+
+(product.name||"")
+
+.toLowerCase()
+
+.includes(keyword)
+
+)
+
+.sort(
+
+(a,b)=>
+
+a.name.localeCompare(
+b.name
+)
+
+)
+
+.slice(0,8);
+
+}
+
+export function getCategories(products){
+
+return[
+
+...new Set(
+
+products
+
+.map(
+
+product=>
+
+(product.category||"")
+
+.trim()
+
+)
+
+.filter(Boolean)
+
+)
+
+]
+
+.sort();
+
+}
+
+export function getBrands(products){
+
+return[
+
+...new Set(
+
+products
+
+.map(
+
+product=>
+
+(product.brand||"")
+
+.trim()
+
+)
+
+.filter(Boolean)
+
+)
+
+]
+
+.sort();
+
+}

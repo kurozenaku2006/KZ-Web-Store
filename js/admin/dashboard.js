@@ -9,6 +9,36 @@ import {
 }
 from "../config/firebase.js";
 
+import {
+    getStoreSettings
+}
+from "../services/settings.js";
+
+import {
+getAnalytics
+}
+from "../services/analytics.js";
+
+import {
+revenueChart as buildRevenueChart
+}
+from "./widgets/revenue-chart.js";
+
+import {
+salesChart as buildSalesChart
+}
+from "./widgets/sales-chart.js";
+
+import {
+topProductsChart
+}
+from "./widgets/top-products-chart.js";
+
+import {
+categoryChart
+}
+from "./widgets/category-chart.js";
+
 const cards =
 document.getElementById(
 "cards"
@@ -59,152 +89,129 @@ document.getElementById(
 "rewardChart"
 );
 
+const notificationChart =
+document.getElementById(
+"notificationChart"
+);
+
+const activityChart =
+document.getElementById(
+"activityChart"
+);
+
+const orderStatusChart =
+document.getElementById(
+"orderStatusChart"
+);
+
 async function loadDashboard(){
 
-    const usersSnapshot =
-    await getDocs(
-        collection(db,"users")
-    );
+    const settings =
+await getStoreSettings();
 
-    const productsSnapshot =
-    await getDocs(
-        collection(db,"products")
-    );
+const analytics =
+await getAnalytics();
 
-    const ordersSnapshot =
-    await getDocs(
-        collection(db,"orders")
-    );
+const currency =
+settings.currency || "₹";
 
-    const claimsSnapshot =
-    await getDocs(
-        collection(db,"claims")
-        );
+const{
 
-    const users =
-    usersSnapshot.docs.map(
-        doc => doc.data()
-    );
+dashboardCards,
 
-    const products =
-    productsSnapshot.docs.map(
-        doc => ({
-            id:doc.id,
-            ...doc.data()
-        })
-    );
+monthlyRevenue,
 
-    const orders =
-    ordersSnapshot.docs.map(
-        doc => doc.data()
-    );
+dailySales,
 
-    const claims =
-    claimsSnapshot.docs.map(
-        doc => doc.data()
-        );
+productRanking,
 
-        const rewardHistorySnapshot =
-await getDocs(
-    collection(
-        db,
-        "rewardHistory"
-    )
-);
+categorySales,
 
-const rewardHistory =
-rewardHistorySnapshot.docs.map(
-    doc => doc.data()
-);
+bestDay,
 
-        const pendingClaims =
-claims.filter(
-    claim =>
-    claim.status === "pending"
-).length;
+bestMonth,
 
-    let revenue = 0;
+stockTurnover,
 
-    orders.forEach(order => {
+newCustomers,
 
-        revenue +=
-        Number(
-            order.total || 0
-        );
+returningCustomers,
 
-    });
+averageLifetimeValue,
 
-    const deliveredOrders =
-orders.filter(
-order=>
-order.status==="delivered"
-).length;
+claimRate,
 
-const pendingOrders =
-orders.filter(
-order=>
-order.status==="pending"
-).length;
+rewardUsage,
 
-const cancelledOrders =
-orders.filter(
-order=>
-order.status==="cancelled"
-).length;
+orderStatus,
 
-const conversionRate =
-orders.length
-?
-Math.round(
-(deliveredOrders/orders.length)*100
+claimStatus,
+
+rewardStats,
+
+customerStats,
+
+highestOrder,
+
+lowestOrder
+
+}=analytics;
+
+const lowStockLimit =
+Number(settings.lowStock || 5);
+
+const{
+
+products,
+
+users,
+
+orders,
+
+claims,
+
+rewardHistory,
+
+notifications,
+
+activity
+
+}=analytics.collections;
+
+const latestActivity =
+
+activity
+
+.slice()
+
+.sort(
+
+(a,b)=>
+
+new Date(b.createdAt)-
+
+new Date(a.createdAt)
+
 )
-:
-0;
 
-    let highestOrder = 0;
-let lowestOrder = 0;
-let averageOrder = 0;
+.slice(0,10);
 
-if(orders.length > 0){
+const totalNotifications =
+notifications.length;
 
-    const totals =
-    orders.map(
-        order =>
-        Number(
-            order.total || 0
-        )
-    );
-
-    highestOrder =
-    Math.max(...totals);
-
-    lowestOrder =
-    Math.min(...totals);
-
-    averageOrder =
-    Math.round(
-        revenue /
-        orders.length
-    );
-
-}
-
-    const lowStockItems =
-    products.filter(
-        product =>
-        product.stock <= 5
-    ).length;
-
-    const approvedClaims =
-claims.filter(
-    claim =>
-    claim.status === "approved"
+const archivedNotifications =
+notifications.filter(
+item=>item.archived
 ).length;
 
-const rejectedClaims =
-claims.filter(
-    claim =>
-    claim.status === "rejected"
+const scheduledNotifications =
+notifications.filter(
+item=>item.scheduleAt
+).length;
+
+const unreadNotifications =
+notifications.filter(
+item=>!item.read
 ).length;
 
 let totalRewardIssued = 0;
@@ -220,437 +227,105 @@ rewardHistory.forEach(
     }
 );
 
-let bronzeMembers = 0;
-let silverMembers = 0;
-let goldMembers = 0;
-let platinumMembers = 0;
+    cards.innerHTML=`
 
-let totalRewardRedeemed = 0;
+<div class="card">
 
-let topCustomerUid = "-";
-let topCustomerSpend = 0;
+<h3>
 
-let mostActiveUid = "-";
-let mostActiveOrders = 0;
+Revenue
 
-let topRewardUid = "-";
-let topRewardPoints = 0;
+</h3>
 
-const customerStats = {};
+<div class="card-value">
 
-users.forEach(
-    user => {
+${currency}${dashboardCards.revenue}
 
-        let points =
-        Number(
-            user.rewardPoints || 0
-        );
-
-        if(points >= 1000){
-
-            platinumMembers++;
-
-        }
-        else if(points >= 500){
-
-            goldMembers++;
-
-        }
-        else if(points >= 100){
-
-            silverMembers++;
-
-        }
-        else{
-
-            bronzeMembers++;
-
-        }
-
-        const currentPoints =
-        Number(
-            user.rewardPoints || 0
-        );
-
-        totalRewardRedeemed +=
-        Math.max(
-            0,
-            totalRewardIssued -
-            currentPoints
-        );
-
-    }
-);
-
-orders.forEach(order => {
-
-    if(
-        !customerStats[
-            order.uid
-        ]
-    ){
-
-        customerStats[
-            order.uid
-        ] = {
-
-            spend:0,
-            orders:0
-
-        };
-
-    }
-
-    customerStats[
-        order.uid
-    ].spend +=
-    Number(
-        order.total || 0
-    );
-
-    customerStats[
-        order.uid
-    ].orders++;
-
-});
-
-users.forEach(user => {
-
-    const uid =
-    user.uid || "-";
-
-    const points =
-    Number(
-        user.rewardPoints || 0
-    );
-
-    if(
-        points >
-        topRewardPoints
-    ){
-
-        topRewardPoints =
-        points;
-
-        topRewardUid =
-        uid;
-
-    }
-
-});
-
-Object.entries(
-    customerStats
-).forEach(
-([uid,data]) => {
-
-    if(
-        data.spend >
-        topCustomerSpend
-    ){
-
-        topCustomerSpend =
-        data.spend;
-
-        topCustomerUid =
-        uid;
-
-    }
-
-    if(
-        data.orders >
-        mostActiveOrders
-    ){
-
-        mostActiveOrders =
-        data.orders;
-
-        mostActiveUid =
-        uid;
-
-    }
-
-});
-
-    cards.innerHTML = `
-
-        <div class="card">
-
-            <h3>
-                Total Revenue
-            </h3>
-
-            <div class="card-value">
-
-                ₹${revenue}
-
-            </div>
-
-        </div>
-
-        <div class="card">
-
-            <h3>
-                Total Orders
-            </h3>
-
-            <div class="card-value">
-
-                ${orders.length}
-
-            </div>
-
-        </div>
-
-        <div class="card">
-
-            <h3>
-                Customers
-            </h3>
-
-            <div class="card-value">
-
-                ${users.length}
-
-            </div>
-
-        </div>
-
-        <div class="card">
-
-            <h3>
-                Pending Claims
-            </h3>
-
-            <div class="card-value">
-
-                ${pendingClaims}
-
-            </div>
-
-        </div>
-
-        <div class="card">
-
-            <h3>
-                Low Stock Items
-            </h3>
-
-            <div class="card-value">
-
-                ${lowStockItems}
-
-            </div>
-
-        </div>
-
-        <div class="card">
-
-    <h3>
-        Reward Points Issued
-    </h3>
-
-    <div class="card-value">
-
-        ${totalRewardIssued}
-
-    </div>
+</div>
 
 </div>
 
 <div class="card">
 
-    <h3>
-        Reward Points Redeemed
-    </h3>
+<h3>
 
-    <div class="card-value">
+Orders
 
-        ${totalRewardRedeemed}
+</h3>
 
-    </div>
+<div class="card-value">
+
+${dashboardCards.orders}
+
+</div>
 
 </div>
 
 <div class="card">
 
-    <h3>
-        Claims Approved
-    </h3>
+<h3>
 
-    <div class="card-value">
+Customers
 
-        ${approvedClaims}
+</h3>
 
-    </div>
+<div class="card-value">
+
+${dashboardCards.customers}
+
+</div>
 
 </div>
 
 <div class="card">
 
-    <h3>
-        Claims Rejected
-    </h3>
+<h3>
 
-    <div class="card-value">
+Claims
 
-        ${rejectedClaims}
+</h3>
 
-    </div>
+<div class="card-value">
+
+${dashboardCards.claims}
+
+</div>
 
 </div>
 
 <div class="card">
 
-    <h3>
-        Bronze Members
-    </h3>
+<h3>
 
-    <div class="card-value">
+Products Sold
 
-        ${bronzeMembers}
+</h3>
 
-    </div>
+<div class="card-value">
+
+${dashboardCards.productsSold}
+
+</div>
 
 </div>
 
 <div class="card">
 
-    <h3>
-        Silver Members
-    </h3>
+<h3>
 
-    <div class="card-value">
+Average Order
 
-        ${silverMembers}
+</h3>
 
-    </div>
+<div class="card-value">
 
-</div>
-
-<div class="card">
-
-    <h3>
-        Gold Members
-    </h3>
-
-    <div class="card-value">
-
-        ${goldMembers}
-
-    </div>
+${currency}${dashboardCards.averageOrder}
 
 </div>
 
-<div class="card">
-
-    <h3>
-        Platinum Members
-    </h3>
-
-    <div class="card-value">
-
-        ${platinumMembers}
-
-    </div>
-
 </div>
 
-<div class="card">
-
-    <h3>
-        Average Order
-    </h3>
-
-    <div class="card-value">
-
-        ₹${averageOrder}
-
-    </div>
-
-</div>
-
-<div class="card">
-
-    <h3>
-        Highest Order
-    </h3>
-
-    <div class="card-value">
-
-        ₹${highestOrder}
-
-    </div>
-
-</div>
-
-<div class="card">
-
-    <h3>
-        Lowest Order
-    </h3>
-
-    <div class="card-value">
-
-        ₹${lowestOrder}
-
-    </div>
-
-</div>
-
-<div class="card">
-
-    <h3>
-        Top Customer
-    </h3>
-
-    <div class="card-value">
-
-        ₹${topCustomerSpend}
-
-    </div>
-
-    <small>
-        ${topCustomerUid}
-    </small>
-
-</div>
-
-<div class="card">
-
-    <h3>
-        Most Active Customer
-    </h3>
-
-    <div class="card-value">
-
-        ${mostActiveOrders}
-    </div>
-
-    <small>
-        ${mostActiveUid}
-    </small>
-
-</div>
-
-<div class="card">
-
-    <h3>
-        Top Reward Holder
-    </h3>
-
-    <div class="card-value">
-
-        ${topRewardPoints}
-    </div>
-
-    <small>
-        ${topRewardUid}
-    </small>
-
-</div>
-
-    `;
+`;
 
     const recentOrders =
 orders.slice(-5).reverse();
@@ -677,7 +352,7 @@ recentOrders.length === 0
 
     <p>
         Total:
-        ₹${order.total}
+        ${currency}${order.total}
     </p>
 
     <p>
@@ -694,7 +369,7 @@ recentOrders.length === 0
 const lowStockProducts =
 products.filter(
 product =>
-product.stock <= 5
+product.stock <= lowStockLimit
 );
 
 lowStockBox.innerHTML = `
@@ -718,7 +393,12 @@ lowStockProducts.length === 0
 
     <p>
         Stock:
-        ${product.stock}
+${product.stock}
+
+<small>
+Alert:
+${lowStockLimit}
+</small>
     </p>
 
 </div>
@@ -755,7 +435,7 @@ recentRewards.length === 0
 
     <p>
         Order Total:
-        ₹${reward.orderTotal}
+        ${currency}${reward.orderTotal}
     </p>
 
 </div>
@@ -765,109 +445,17 @@ recentRewards.length === 0
 
 `;
 
-revenueChart.innerHTML=`
+revenueChart.innerHTML =
+buildRevenueChart(
+analytics.monthlyRevenue,
+currency
+);
 
-<h2>
-
-Revenue Overview
-
-</h2>
-
-<br>
-
-<div class="activity-item">
-
-<p>
-
-Total Revenue
-
-</p>
-
-<h3>
-
-₹${revenue}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Average Order
-
-</p>
-
-<h3>
-
-₹${averageOrder}
-
-</h3>
-
-</div>
-
-`;
-
-salesChart.innerHTML=`
-
-<h2>
-
-Sales Overview
-
-</h2>
-
-<br>
-
-<div class="activity-item">
-
-<p>
-
-Delivered
-
-</p>
-
-<h3>
-
-${deliveredOrders}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Pending
-
-</p>
-
-<h3>
-
-${pendingOrders}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Cancelled
-
-</p>
-
-<h3>
-
-${cancelledOrders}
-
-</h3>
-
-</div>
-
-`;
+salesChart.innerHTML =
+buildSalesChart(
+analytics.dailySales,
+currency
+);
 
 insightsBox.innerHTML=`
 
@@ -883,13 +471,13 @@ Business Insights
 
 <p>
 
-Conversion Rate
+Best Sales Day
 
 </p>
 
 <h3>
 
-${conversionRate}%
+${bestDay}
 
 </h3>
 
@@ -899,13 +487,13 @@ ${conversionRate}%
 
 <p>
 
-Highest Order
+Best Month
 
 </p>
 
 <h3>
 
-₹${highestOrder}
+${bestMonth}
 
 </h3>
 
@@ -915,13 +503,13 @@ Highest Order
 
 <p>
 
-Top Customer Spend
+Stock Turnover
 
 </p>
 
 <h3>
 
-₹${topCustomerSpend}
+${stockTurnover}%
 
 </h3>
 
@@ -931,13 +519,61 @@ Top Customer Spend
 
 <p>
 
-Reward Points Issued
+Average Lifetime Value
 
 </p>
 
 <h3>
 
-${totalRewardIssued}
+${currency}${averageLifetimeValue}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Returning Customers
+
+</p>
+
+<h3>
+
+${returningCustomers}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+New Customers
+
+</p>
+
+<h3>
+
+${newCustomers}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Claim Rate
+
+</p>
+
+<h3>
+
+${claimRate}%
 
 </h3>
 
@@ -945,147 +581,21 @@ ${totalRewardIssued}
 
 `;
 
-customerChart.innerHTML=`
-
-<h2>
-
-Customer Overview
-
-</h2>
-
-<br>
-
-<div class="activity-item">
-
-<p>
-
-Customers
-
-</p>
-
-<h3>
-
-${users.length}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Bronze
-
-</p>
-
-<h3>
-
-${bronzeMembers}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Silver
-
-</p>
-
-<h3>
-
-${silverMembers}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Gold + Platinum
-
-</p>
-
-<h3>
-
-${goldMembers+platinumMembers}
-
-</h3>
-
-</div>
-
-`;
-
-claimsChart.innerHTML=`
-
-<h2>
-
-Claims Overview
-
-</h2>
-
-<br>
-
-<div class="activity-item">
-
-<p>
-
-Pending
-
-</p>
-
-<h3>
-
-${pendingClaims}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Approved
-
-</p>
-
-<h3>
-
-${approvedClaims}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Rejected
-
-</p>
-
-<h3>
-
-${rejectedClaims}
-
-</h3>
-
-</div>
-
-`;
+customerChart.innerHTML =
+topProductsChart(
+analytics.productRanking
+);
+
+claimsChart.innerHTML =
+categoryChart(
+analytics.categorySales
+);
 
 rewardChart.innerHTML=`
 
 <h2>
 
-Rewards Overview
+Reward Analytics
 
 </h2>
 
@@ -1095,29 +605,13 @@ Rewards Overview
 
 <p>
 
-Issued
+Reward Balance
 
 </p>
 
 <h3>
 
-${totalRewardIssued}
-
-</h3>
-
-</div>
-
-<div class="activity-item">
-
-<p>
-
-Redeemed
-
-</p>
-
-<h3>
-
-${totalRewardRedeemed}
+${rewardUsage}
 
 </h3>
 
@@ -1133,15 +627,226 @@ Top Holder
 
 <h3>
 
-${topRewardPoints}
+${rewardStats.topRewardPoints}
 
 </h3>
 
 <small>
 
-${topRewardUid}
+${rewardStats.topRewardUid}
 
 </small>
+
+</div>
+
+`;
+
+notificationChart.innerHTML=`
+
+<h2>
+
+Notification Analytics
+
+</h2>
+
+<br>
+
+<div class="activity-item">
+
+<p>
+
+Total
+
+</p>
+
+<h3>
+
+${totalNotifications}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Unread
+
+</p>
+
+<h3>
+
+${unreadNotifications}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Scheduled
+
+</p>
+
+<h3>
+
+${scheduledNotifications}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Archived
+
+</p>
+
+<h3>
+
+${archivedNotifications}
+
+</h3>
+
+</div>
+
+`;
+activityChart.innerHTML=`
+
+<h2>
+
+Recent Activity
+
+</h2>
+
+<br>
+
+${
+
+latestActivity.length===0
+
+?
+
+"<p>No Activity</p>"
+
+:
+
+latestActivity.map(log=>`
+
+<div class="activity-item">
+
+<p>
+
+${log.action||"-"}
+
+</p>
+
+<small>
+
+${log.module||"-"}
+
+</small>
+
+</div>
+
+`).join("")
+
+}
+
+`;
+
+orderStatusChart.innerHTML=`
+
+<h2>
+
+Order Status Analytics
+
+</h2>
+
+<br>
+
+<div class="activity-item">
+
+<p>
+
+Pending
+
+</p>
+
+<h3>
+
+${orderStatus.pending}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Approved
+
+</p>
+
+<h3>
+
+${orderStatus.approved}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Shipped
+
+</p>
+
+<h3>
+
+${orderStatus.shipped}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Delivered
+
+</p>
+
+<h3>
+
+${orderStatus.delivered}
+
+</h3>
+
+</div>
+
+<div class="activity-item">
+
+<p>
+
+Cancelled
+
+</p>
+
+<h3>
+
+${orderStatus.cancelled}
+
+</h3>
 
 </div>
 
@@ -1150,4 +855,16 @@ ${topRewardUid}
 }
 
 loadDashboard();
+
+setInterval(
+
+()=>{
+
+loadDashboard();
+
+},
+
+60000
+
+);
 

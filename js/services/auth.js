@@ -9,10 +9,42 @@ import {
   doc,
   setDoc,
   getDoc,
-  serverTimestamp
+  serverTimestamp,
+  collection,
+  addDoc
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 import { auth, db } from "../config/firebase.js";
+
+async function recordLogin(user){
+
+  const ua=navigator.userAgent;
+
+  await addDoc(
+
+    collection(db,"loginHistory"),
+
+    {
+
+      uid:user.uid,
+
+      email:user.email,
+
+      browser:ua,
+
+      device:navigator.platform,
+
+      os:navigator.platform,
+
+      ip:"",
+
+      loginAt:new Date().toISOString()
+
+    }
+
+  );
+
+}
 
 export async function registerUser(name, email, password) {
 
@@ -47,7 +79,9 @@ export async function loginUser(email, password) {
       password
     );
 
-  return userCredential.user;
+  await recordLogin(userCredential.user);
+
+return userCredential.user;
 }
 
 export async function logoutUser() {

@@ -1,43 +1,13 @@
-const settings = {
+import{
 
-storeName:
-localStorage.getItem(
-"storeName"
-) || "KZ HOBBIES",
+getStoreSettings,
 
-currency:
-localStorage.getItem(
-"currency"
-) || "₹",
+saveStoreSettings
 
-lowStock:
-localStorage.getItem(
-"lowStock"
-) || "5"
+}
+from "../services/settings.js";
 
-,
-
-tax:
-localStorage.getItem(
-"tax"
-)||"18",
-
-shipping:
-localStorage.getItem(
-"shipping"
-)||"0",
-
-rewardRate:
-localStorage.getItem(
-"rewardRate"
-)||"1",
-
-maintenance:
-localStorage.getItem(
-"maintenance"
-)||"off"
-
-};
+let settings={};
 
 const container =
 document.getElementById(
@@ -61,6 +31,20 @@ Store Name
 <input
 id="storeName"
 value="${settings.storeName}">
+
+<br><br>
+
+<label>
+
+Store Logo URL
+
+</label>
+
+<br>
+
+<input
+id="storeLogo"
+value="${settings.storeLogo||""}">
 
 <br><br>
 
@@ -137,14 +121,42 @@ type="number">
 
 <label>
 
+Order Prefix
+
+</label>
+
+<br>
+
+<input
+id="orderPrefix"
+value="${settings.orderPrefix||"KZ"}">
+
+<br><br>
+
+<label>
+
+Auto Approve Orders
+
+</label>
+
+<br>
+
+<input
+type="checkbox"
+id="autoApproveOrders"
+${settings.autoApproveOrders?"checked":""}>
+
+<br><br>
+
+<label>
+
 Maintenance Mode
 
 </label>
 
 <br>
 
-<select
-id="maintenance">
+<select id="maintenance">
 
 <option value="off">
 
@@ -199,55 +211,68 @@ save;
 
 }
 
-function save(){
+async function save(){
 
-localStorage.setItem(
-"storeName",
+settings={
+
+storeName:
 document.getElementById(
 "storeName"
-).value
-);
+).value,
 
-localStorage.setItem(
-"currency",
+storeLogo:
+document.getElementById(
+"storeLogo"
+).value,
+
+currency:
 document.getElementById(
 "currency"
-).value
-);
+).value,
 
-localStorage.setItem(
-"lowStock",
+lowStock:Number(
 document.getElementById(
 "lowStock"
 ).value
-);
+),
 
-localStorage.setItem(
-"tax",
+tax:Number(
 document.getElementById(
 "tax"
 ).value
-);
+),
 
-localStorage.setItem(
-"shipping",
+shipping:Number(
 document.getElementById(
 "shipping"
 ).value
-);
+),
 
-localStorage.setItem(
-"rewardRate",
+rewardRate:Number(
 document.getElementById(
 "rewardRate"
 ).value
-);
+),
 
-localStorage.setItem(
-"maintenance",
+orderPrefix:
+document.getElementById(
+"orderPrefix"
+).value,
+
+autoApproveOrders:
+document.getElementById(
+"autoApproveOrders"
+).checked,
+
+maintenance:
 document.getElementById(
 "maintenance"
 ).value
+
+};
+
+await saveStoreSettings(
+settings
 );
 
 alert(
@@ -256,4 +281,13 @@ alert(
 
 }
 
+async function init(){
+
+settings=
+await getStoreSettings();
+
 render();
+
+}
+
+init();

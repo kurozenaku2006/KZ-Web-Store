@@ -30,12 +30,25 @@ import {
 }
 from "../services/products.js";
 
+import{
+validateCoupon,
+recordCouponUsage
+}
+from "../services/coupons.js";
+
+import {
+requireMaintenanceOff
+}
+from "../services/guard.js";
+
 const container =
 document.getElementById(
 "checkoutContainer"
 );
 
 async function loadCheckout(){
+
+    await requireMaintenanceOff();
 
     const items =
     await getCartItems();
@@ -91,6 +104,20 @@ userData?.rewardPoints || 0;
     </p>
 
     <br>
+
+    <label>
+
+Coupon Code
+
+</label>
+
+<br><br>
+
+<input
+id="couponCode"
+placeholder="Enter Coupon">
+
+<br><br>
 
     <label>
 
@@ -178,12 +205,64 @@ async function(){
 
 }
 
+const couponCode=
+
+document
+.getElementById(
+"couponCode"
+)
+.value
+.trim()
+.toUpperCase();
+
+let appliedCoupon=null;
+
   const redeemPoints =
 Number(
     document.getElementById(
         "redeemPoints"
     ).value || 0
 );
+
+if(couponCode){
+
+const userData=
+await getUserData(
+auth.currentUser.uid
+);
+
+appliedCoupon=
+await validateCoupon(
+
+couponCode,
+
+userData.uid,
+
+userData.email
+
+);
+
+if(!appliedCoupon.valid){
+
+alert(
+appliedCoupon.message
+);
+
+return;
+
+}
+
+total-=
+
+Math.round(
+
+total*
+
+(appliedCoupon.discount/100)
+
+);
+
+}
 
 if(
     redeemPoints > total
@@ -206,12 +285,23 @@ if(
 
 }
 
-    await createOrder({
+    const order=
 
-        items,
-        total
+await createOrder({
 
-    });
+items,
+
+total,
+
+coupon:
+
+appliedCoupon
+?
+appliedCoupon.code
+:
+null
+
+});
 
     const rewardPoints =
 Math.floor(
@@ -240,6 +330,20 @@ if(user){
         );
 
     }
+
+    if(appliedCoupon){
+
+await recordCouponUsage(
+
+appliedCoupon.id,
+
+auth.currentUser.uid,
+
+order?.id || ""
+
+);
+
+}
 
     await addRewardPoints(
         user.uid,

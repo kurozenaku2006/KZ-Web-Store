@@ -1742,13 +1742,69 @@ log.createdAt
 
 Login History
 
+(${data.loginHistory.length})
+
 </h3>
+
+${
+
+data.loginHistory.length===0
+
+?
+
+"<p>No Login History</p>"
+
+:
+
+data.loginHistory.map(login=>`
 
 <div class="activity-item">
 
-Future Ready
+<p>
+
+${login.email||"-"}
+
+</p>
+
+<p>
+
+${login.loginAt
+
+?
+
+new Date(
+
+login.loginAt
+
+).toLocaleString()
+
+:
+
+"-"}
+
+</p>
+
+<p>
+
+Device :
+
+${login.device||"-"}
+
+</p>
+
+<p>
+
+Browser :
+
+${login.browser||"-"}
+
+</p>
 
 </div>
+
+`).join("")
+
+}
 
 <h3>
 

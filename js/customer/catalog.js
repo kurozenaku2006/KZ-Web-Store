@@ -3,12 +3,19 @@ import {
 }
 from "../services/products.js";
 
+import {
+requireMaintenanceOff
+}
+from "../services/guard.js";
+
 const catalogGrid =
 document.getElementById(
     "catalogGrid"
 );
 
 async function loadCatalog(){
+
+    await requireMaintenanceOff();
 
     const products =
     await getProducts();

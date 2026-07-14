@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>
+
+Shipping
+
+</title>
+
+<link
+rel="stylesheet"
+href="/css/admin.css">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<div class="dashboard-layout">
+
+<div
+id="sidebar"
+class="sidebar"></div>
+
+<div class="main-content">
+
+<h1>
+
+Shipping Management
+
+</h1>
+
+<br>
+
+<div
+id="shippingContainer">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+
+<div id="footer"></div>
+
+<script src="/components/navbar-loader.js"></script>
+<script src="/components/footer-loader.js"></script>
+<script src="/components/sidebar-loader.js"></script>
+
+<script
+type="module"
+src="/js/admin/shipping.js">
+</script>
+
+<script type="module">
+
+import{
+requireAdmin
+}
+from "/js/services/guard.js";
+
+await requireAdmin();
+
+</script>
+
+</body>
+
+</html>

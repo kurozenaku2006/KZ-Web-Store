@@ -2,10 +2,21 @@ import{
 
 getCustomerNotifications,
 
-updateNotification
+updateNotification,
+
+saveNotificationPreferences,
+
+getNotificationPreferences
 
 }
 from "../services/notifications.js";
+
+import{
+
+auth
+
+}
+from "../config/firebase.js";
 
 const list=
 document.getElementById(
@@ -20,6 +31,12 @@ document.getElementById(
 const filter=
 document.getElementById(
 "notificationFilter"
+);
+
+const channelFilter=
+
+document.getElementById(
+"channelFilter"
 );
 
 let notifications=[];
@@ -83,6 +100,26 @@ item=>item.archived
 
 }
 
+if(
+
+channelFilter.value!=="all"
+
+){
+
+data=data.filter(
+
+item=>
+
+(item.channel||"inapp")
+
+===
+
+channelFilter.value
+
+);
+
+}
+
 list.innerHTML="";
 
 if(data.length===0){
@@ -115,6 +152,30 @@ ${item.message}
 <p>
 
 ${item.createdAt}
+
+</p>
+
+<p>
+
+Channel :
+
+${item.channel||"inapp"}
+
+</p>
+
+<p>
+
+Priority :
+
+${item.priority||"normal"}
+
+</p>
+
+<p>
+
+Status :
+
+${item.deliveryStatus||"pending"}
 
 </p>
 
@@ -180,4 +241,83 @@ render;
 filter.onchange=
 render;
 
-load();
+channelFilter.onchange=
+
+render;
+
+initialize();
+
+async function initialize(){
+
+await load();
+
+const prefs=
+
+await getNotificationPreferences(
+
+auth.currentUser.uid
+
+);
+
+document.getElementById(
+"prefInApp"
+).checked=
+prefs.inApp;
+
+document.getElementById(
+"prefEmail"
+).checked=
+prefs.email;
+
+document.getElementById(
+"prefSMS"
+).checked=
+prefs.sms;
+
+document.getElementById(
+"prefPush"
+).checked=
+prefs.push;
+
+}
+
+document.getElementById(
+"savePreferences"
+).onclick=
+async()=>{
+
+await saveNotificationPreferences(
+
+auth.currentUser.uid,
+
+{
+
+inApp:
+document.getElementById(
+"prefInApp"
+).checked,
+
+email:
+document.getElementById(
+"prefEmail"
+).checked,
+
+sms:
+document.getElementById(
+"prefSMS"
+).checked,
+
+push:
+document.getElementById(
+"prefPush"
+).checked
+
+}
+
+);
+
+alert(
+"Preferences Saved"
+);
+
+};

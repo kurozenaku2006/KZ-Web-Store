@@ -4,6 +4,11 @@ import {
 }
 from "../services/wishlist.js";
 
+import{
+requireMaintenanceOff
+}
+from "../services/guard.js";
+
 import {
     getProductById
 }
@@ -15,6 +20,8 @@ document.getElementById(
 );
 
 async function loadWishlist(){
+
+    await requireMaintenanceOff();
 
     const items =
     await getWishlist();

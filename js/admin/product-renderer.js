@@ -63,6 +63,30 @@ ${product.status}
 </p>
 
 <p>
+
+<strong>
+
+Category:
+
+</strong>
+
+${product.category||"-"}
+
+</p>
+
+<p>
+
+<strong>
+
+Brand:
+
+</strong>
+
+${product.brand||"-"}
+
+</p>
+
+<p>
 <strong>Last Updated</strong><br>
 ${product.lastUpdated || "-"}
 </p>

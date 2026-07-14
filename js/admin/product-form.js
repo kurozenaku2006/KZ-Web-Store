@@ -70,7 +70,39 @@ export function registerProductForm(
 
     stock,
 
-    status:"active"
+    category:
+    document.getElementById(
+        "category"
+    ).value.trim(),
+
+    brand:
+    document.getElementById(
+        "brand"
+    ).value.trim(),
+
+    status:"active",
+
+    flashSale:
+    document.getElementById(
+        "flashEnabled"
+    ).checked,
+
+    flashDiscount:
+    Number(
+        document.getElementById(
+            "flashDiscount"
+        ).value
+    )||0,
+
+    flashSaleStart:
+    document.getElementById(
+        "flashStart"
+    ).value||"",
+
+    flashSaleEnd:
+    document.getElementById(
+        "flashEnd"
+    ).value||""
 
 };
 
@@ -101,6 +133,30 @@ await logActivity({
             document.getElementById(
                 "stock"
             ).value = "";
+
+            document.getElementById(
+    "category"
+).value="";
+
+document.getElementById(
+    "brand"
+).value="";
+
+            document.getElementById(
+    "flashDiscount"
+).value="";
+
+document.getElementById(
+    "flashStart"
+).value="";
+
+document.getElementById(
+    "flashEnd"
+).value="";
+
+document.getElementById(
+    "flashEnabled"
+).checked=false;
 
             await refreshProducts();
 

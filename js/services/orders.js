@@ -36,6 +36,11 @@ import {
 }
 from "./products.js";
 
+import {
+    getStoreSettings
+}
+from "./settings.js";
+
 const ordersRef =
 collection(db,"orders");
 
@@ -63,6 +68,9 @@ export async function createOrder(order){
 
     const user =
     await getCurrentUser();
+
+    const settings =
+await getStoreSettings();
 
     const userDoc =
 await getDocs(
@@ -154,29 +162,65 @@ for(const item of order.items){
 
 }
 
+const orderNumber =
+
+`${settings.orderPrefix || "KZ"}-${
+Date.now()
+}`;
+
 await addDoc(
     ordersRef,
-    {
+   {
     ...order,
+
+    orderNumber,
 
     uid:user.uid,
 
-    status:"pending",
+    status:
+    settings.autoApproveOrders
+    ? "approved"
+    : "pending",
 
-    paymentStatus:
-    "pending",
+    paymentStatus:"pending",
 
-    adminNote:
-    "",
+    tax:
+    Number(settings.tax || 0),
+
+    shipping:
+    Number(settings.shipping || 0),
+
+    rewardRate:
+    Number(settings.rewardRate || 1),
+
+    adminNote:"",
 
     createdAt:
     new Date().toISOString(),
 
     updatedAt:
     new Date().toISOString()
-
 }
 );
+
+await logActivity({
+
+module:"orders",
+
+action:"Order Created",
+
+targetId:orderNumber,
+
+targetName:user.uid,
+
+metadata:{
+status:
+settings.autoApproveOrders
+? "approved"
+: "pending"
+}
+
+});
 
 }
 

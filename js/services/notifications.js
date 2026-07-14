@@ -42,6 +42,48 @@ export async function createNotification(
 
     }
 
+    if(
+
+data.channel==="email"
+
+&&
+
+!data.customerUid
+
+){
+
+// ready for bulk email
+
+}
+
+if(
+
+data.channel==="sms"
+
+&&
+
+!data.customerUid
+
+){
+
+// ready for bulk sms
+
+}
+
+if(
+
+data.channel==="push"
+
+&&
+
+!data.customerUid
+
+){
+
+// ready for push service
+
+}
+
     await addDoc(
         notificationsRef,
         {
@@ -62,6 +104,54 @@ export async function createNotification(
             customerUid:
 data.customerUid || "",
 
+channel:
+
+data.channel ||
+
+"inapp",
+
+priority:
+
+data.priority ||
+
+"normal",
+
+deliveryStatus:
+
+"pending",
+
+deliveryAttempts:
+
+0,
+
+lastDeliveryAttempt:
+
+"",
+
+emailReady:
+
+data.channel==="email"
+
+||
+
+data.channel==="all",
+
+smsReady:
+
+data.channel==="sms"
+
+||
+
+data.channel==="all",
+
+pushReady:
+
+data.channel==="push"
+
+||
+
+data.channel==="all",
+
 scheduleAt:
 data.scheduleAt || "",
 
@@ -76,6 +166,8 @@ archived:false,
             new Date().toISOString()
         }
     );
+
+
 
     await logActivity({
 
@@ -186,6 +278,94 @@ id
 
 }
 
+export async function markNotificationDelivered(
+
+id,
+
+channel
+
+){
+
+await updateNotification(
+
+id,
+
+{
+
+deliveryStatus:
+
+"delivered",
+
+deliveryChannel:
+
+channel,
+
+deliveryAttempts:1,
+
+lastDeliveryAttempt:
+
+new Date().toISOString()
+
+}
+
+);
+
+}
+
+export async function markNotificationFailed(
+
+id,
+
+reason
+
+){
+
+const notifications=
+
+await getNotifications();
+
+const notification=
+
+notifications.find(
+
+item=>
+
+item.id===id
+
+);
+
+await updateNotification(
+
+id,
+
+{
+
+deliveryStatus:
+
+"failed",
+
+failureReason:
+
+reason,
+
+deliveryAttempts:
+
+Number(
+
+notification?.deliveryAttempts||0
+
+)+1,
+
+lastDeliveryAttempt:
+
+new Date().toISOString()
+
+}
+
+);
+
+}
+
 export async function deleteNotification(
 id
 ){
@@ -207,5 +387,102 @@ action:"Notification Deleted",
 targetId:id
 
 });
+
+}
+
+const notificationPreferencesRef=
+collection(
+db,
+"notificationPreferences"
+);
+
+export async function saveNotificationPreferences(
+
+uid,
+
+preferences
+
+){
+
+const snapshot=
+await getDocs(
+notificationPreferencesRef
+);
+
+const existing=
+snapshot.docs.find(doc=>
+
+doc.data().uid===uid
+
+);
+
+if(existing){
+
+await updateDoc(
+
+doc(
+db,
+"notificationPreferences",
+existing.id
+),
+
+preferences
+
+);
+
+return;
+
+}
+
+await addDoc(
+
+notificationPreferencesRef,
+
+{
+
+uid,
+
+...preferences,
+
+updatedAt:
+new Date().toISOString()
+
+}
+
+);
+
+}
+
+export async function getNotificationPreferences(uid){
+
+const snapshot=
+await getDocs(
+notificationPreferencesRef
+);
+
+const item=
+snapshot.docs.find(doc=>
+
+doc.data().uid===uid
+
+);
+
+if(!item){
+
+return{
+
+inApp:true,
+
+email:false,
+
+sms:false,
+
+push:false
+
+};
+
+}
+
+return item.data();
 
 }

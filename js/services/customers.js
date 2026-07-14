@@ -1,5 +1,6 @@
 import {
 collection,
+getDoc,
 getDocs,
 doc,
 updateDoc,
@@ -522,6 +523,16 @@ db,
 )
 );
 
+const loginHistorySnapshot=
+await getDocs(
+
+collection(
+db,
+"loginHistory"
+)
+
+);
+
 const customerOrders=
 orders.docs
 .map(doc=>({
@@ -564,6 +575,36 @@ reward=>
 reward.uid===uid
 );
 
+const loginHistory=
+
+loginHistorySnapshot.docs
+
+.map(doc=>({
+
+id:doc.id,
+
+...doc.data()
+
+}))
+
+.filter(
+
+entry=>
+
+entry.uid===uid
+
+)
+
+.sort(
+
+(a,b)=>
+
+new Date(b.loginAt)-
+
+new Date(a.loginAt)
+
+);
+
 const logs =
 await getActivity();
 
@@ -602,7 +643,9 @@ claims:customerClaims,
 
 rewards,
 
-activity
+activity,
+
+loginHistory
 
 };
 

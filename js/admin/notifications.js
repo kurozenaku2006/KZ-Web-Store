@@ -87,6 +87,30 @@ ${item.target}
 
 <p>
 
+Channel :
+
+${item.channel||"inapp"}
+
+</p>
+
+<p>
+
+Priority :
+
+${item.priority||"normal"}
+
+</p>
+
+<p>
+
+Delivery :
+
+${item.deliveryStatus||"pending"}
+
+</p>
+
+<p>
+
 ${item.createdAt}
 
 </p>
@@ -156,6 +180,20 @@ document
 "customerUid"
 ).value.trim();
 
+const channel=
+
+document
+.getElementById(
+"notificationChannel"
+).value;
+
+const priority=
+
+document
+.getElementById(
+"notificationPriority"
+).value;
+
 if(
 !title||
 !message
@@ -181,7 +219,11 @@ target,
 
 scheduleAt,
 
-customerUid
+customerUid,
+
+channel,
+
+priority
 
 });
 

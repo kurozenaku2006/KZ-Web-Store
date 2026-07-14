@@ -9,6 +9,11 @@ db
 }
 from "../config/firebase.js";
 
+import {
+getStoreSettings
+}
+from "./settings.js";
+
 export async function getAnalytics(){
 
 const productsSnapshot=
@@ -43,6 +48,30 @@ db,
 )
 );
 
+const rewardHistorySnapshot =
+await getDocs(
+collection(
+db,
+"rewardHistory"
+)
+);
+
+const notificationsSnapshot =
+await getDocs(
+collection(
+db,
+"notifications"
+)
+);
+
+const activitySnapshot =
+await getDocs(
+collection(
+db,
+"activity"
+)
+);
+
 const products=
 productsSnapshot.docs.map(
 doc=>({
@@ -69,6 +98,30 @@ id:doc.id,
 
 const claims=
 claimsSnapshot.docs.map(
+doc=>({
+id:doc.id,
+...doc.data()
+})
+);
+
+const rewardHistory =
+rewardHistorySnapshot.docs.map(
+doc=>({
+id:doc.id,
+...doc.data()
+})
+);
+
+const notifications =
+notificationsSnapshot.docs.map(
+doc=>({
+id:doc.id,
+...doc.data()
+})
+);
+
+const activity =
+activitySnapshot.docs.map(
 doc=>({
 id:doc.id,
 ...doc.data()
@@ -457,16 +510,236 @@ customerOrders
 
 );
 
-let rewardUsage=0;
+const orderStatus={
+
+pending:0,
+approved:0,
+shipped:0,
+delivered:0,
+cancelled:0
+
+};
+
+orders.forEach(order=>{
+
+switch(order.status){
+
+case "pending":
+orderStatus.pending++;
+break;
+
+case "approved":
+orderStatus.approved++;
+break;
+
+case "shipped":
+orderStatus.shipped++;
+break;
+
+case "delivered":
+orderStatus.delivered++;
+break;
+
+case "cancelled":
+orderStatus.cancelled++;
+break;
+
+}
+
+});
+
+const claimStatus={
+
+pending:0,
+approved:0,
+rejected:0
+
+};
+
+claims.forEach(claim=>{
+
+if(claim.status==="pending")
+claimStatus.pending++;
+
+if(claim.status==="approved")
+claimStatus.approved++;
+
+if(claim.status==="rejected")
+claimStatus.rejected++;
+
+});
+
+const totals=
+
+orders.map(
+order=>
+Number(order.total||0)
+);
+
+const highestOrder=
+
+totals.length
+
+?
+
+Math.max(...totals)
+
+:
+
+0;
+
+const lowestOrder=
+
+totals.length
+
+?
+
+Math.min(...totals)
+
+:
+
+0;
+
+let bronzeMembers=0;
+let silverMembers=0;
+let goldMembers=0;
+let platinumMembers=0;
+
+let topRewardPoints=0;
+let topRewardUid="-";
 
 users.forEach(user=>{
 
-rewardUsage+=
+const points=
 Number(
 user.rewardPoints||0
 );
 
+if(points>=1000){
+
+platinumMembers++;
+
+}
+
+else if(points>=500){
+
+goldMembers++;
+
+}
+
+else if(points>=100){
+
+silverMembers++;
+
+}
+
+else{
+
+bronzeMembers++;
+
+}
+
+if(points>topRewardPoints){
+
+topRewardPoints=points;
+
+topRewardUid=
+user.uid||"-";
+
+}
+
 });
+
+const customerStatsMap={};
+
+orders.forEach(order=>{
+
+if(!customerStatsMap[order.uid]){
+
+customerStatsMap[order.uid]={
+
+orders:0,
+spend:0
+
+};
+
+}
+
+customerStatsMap[order.uid].orders++;
+
+customerStatsMap[order.uid].spend+=
+Number(order.total||0);
+
+});
+
+let topCustomerSpend=0;
+let topCustomerUid="-";
+
+let mostActiveOrders=0;
+let mostActiveUid="-";
+
+Object.entries(
+customerStatsMap
+).forEach(([uid,data])=>{
+
+if(data.spend>
+topCustomerSpend){
+
+topCustomerSpend=
+data.spend;
+
+topCustomerUid=
+uid;
+
+}
+
+if(data.orders>
+mostActiveOrders){
+
+mostActiveOrders=
+data.orders;
+
+mostActiveUid=
+uid;
+
+}
+
+});
+
+let rewardUsage = 0;
+
+users.forEach(user=>{
+
+rewardUsage +=
+Number(
+user.rewardPoints || 0
+);
+
+});
+
+const rewardStats={
+
+bronzeMembers,
+silverMembers,
+goldMembers,
+platinumMembers,
+
+rewardUsage,
+
+topRewardPoints,
+topRewardUid
+
+};
+
+const customerStats={
+
+topCustomerSpend,
+topCustomerUid,
+
+mostActiveOrders,
+mostActiveUid
+
+};
 
 const claimRate=
 
@@ -487,7 +760,119 @@ orders.length)
 
 );
 
+const settings =
+await getStoreSettings();
+
+const currency =
+settings.currency || "₹";
+
+const last30Days={};
+
+for(let i=29;i>=0;i--){
+
+const date=new Date();
+
+date.setDate(
+date.getDate()-i
+);
+
+const key=
+date.toISOString().split("T")[0];
+
+last30Days[key]=0;
+
+}
+
+orders.forEach(order=>{
+
+if(
+
+order.status==="approved"
+
+||
+
+order.status==="shipped"
+
+||
+
+order.status==="delivered"
+
+){
+
+const day=
+
+(order.createdAt||"")
+
+.split("T")[0];
+
+if(last30Days[day]!==undefined){
+
+last30Days[day]+=
+
+Number(order.total||0);
+
+}
+
+}
+
+});
+
+const dashboardCards={
+
+revenue,
+
+productsSold,
+
+averageOrder,
+
+customers:users.length,
+
+orders:orders.length,
+
+claims:claims.length,
+
+currency
+
+};
+
+const collections={
+
+products,
+
+users,
+
+orders,
+
+claims,
+
+rewardHistory,
+
+notifications,
+
+activity
+
+};
+
 return{
+collections,
+
+orderStatus,
+
+claimStatus,
+
+rewardStats,
+
+customerStats,
+
+highestOrder,
+
+lowestOrder,
+
+dashboardCards,
+
+last30Days,
+
+currency,
 
 products,
 

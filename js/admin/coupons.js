@@ -321,6 +321,48 @@ ${uses}
 
 `;
 
+stats.innerHTML+=`
+
+<div class="card">
+
+<h3>
+
+Most Used Coupons
+
+</h3>
+
+${data
+.slice()
+.sort(
+(a,b)=>
+
+Number(b.usedCount||0)-
+
+Number(a.usedCount||0)
+
+)
+.slice(0,5)
+.map(c=>`
+
+<p>
+
+${c.code}
+
+—
+
+${c.usedCount||0}
+
+uses
+
+</p>
+
+`)
+.join("")}
+
+</div>
+
+`;
+
 }
 
 window.toggleCoupon=
@@ -432,6 +474,17 @@ document.getElementById(
 "allowedCustomer"
 ).value.trim(),
 
+allowedEmail:
+document.getElementById(
+"allowedEmail"
+).value.trim()
+.toLowerCase(),
+
+oneTimeUse:
+document.getElementById(
+"oneTimeUse"
+).checked,
+
 status:"active"
 
 });
@@ -477,6 +530,16 @@ document
 "allowedCustomer"
 ).value="";
 
+document
+.getElementById(
+"allowedEmail"
+).value="";
+
+document
+.getElementById(
+"oneTimeUse"
+).checked=false;
+
 load();
 
 };
@@ -496,3 +559,51 @@ load,
 30000
 
 );
+
+window.exportCoupons=function(){
+
+const csv=[
+
+"Code,Discount,Status,Limit,Used,Remaining,Expiry"
+
+];
+
+coupons.forEach(c=>{
+
+csv.push(
+
+`"${c.code}",${c.discount},"${c.status}",${c.limit},${c.usedCount||0},${Math.max(0,(c.limit||0)-(c.usedCount||0))},"${c.expiry||""}"`
+
+);
+
+});
+
+const blob=
+
+new Blob(
+
+[csv.join("\n")],
+
+{
+type:"text/csv"
+}
+
+);
+
+const url=
+
+URL.createObjectURL(blob);
+
+const a=
+
+document.createElement("a");
+
+a.href=url;
+
+a.download="coupons.csv";
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+};

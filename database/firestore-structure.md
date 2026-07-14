@@ -42,3 +42,14 @@ id
 userId
 points
 history
+
+# LOGIN HISTORY
+
+id
+uid
+email
+ip
+device
+browser
+os
+loginAt

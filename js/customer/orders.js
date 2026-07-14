@@ -3,12 +3,20 @@ import {
 }
 from "../services/orders.js";
 
+import {
+requireMaintenanceOff
+}
+from "../services/guard.js";
+
 const container =
 document.getElementById(
 "ordersContainer"
 );
 
 async function loadOrders(){
+
+        await requireMaintenanceOff();
+
 
     const orders =
     await getOrders();

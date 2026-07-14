@@ -5,12 +5,19 @@ import {
 }
 from "../services/cart.js";
 
+import{
+requireMaintenanceOff
+}
+from "../services/guard.js";
+
 const container =
 document.getElementById(
 "cartContainer"
 );
 
 async function loadCart(){
+
+    await requireMaintenanceOff();
 
     console.log("Loading Cart...");
 

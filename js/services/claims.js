@@ -6,7 +6,9 @@ import {
     query,
     where,
     doc,
-    updateDoc
+    updateDoc,
+    deleteDoc,
+    orderBy
 }
 from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
@@ -30,6 +32,18 @@ const claimsRef =
 collection(
     db,
     "claims"
+);
+
+const claimNotesRef =
+collection(
+    db,
+    "claimNotes"
+);
+
+const claimTimelineRef =
+collection(
+    db,
+    "claimTimeline"
 );
 
 function getCurrentUser(){
@@ -63,16 +77,49 @@ export async function createClaim(claim){
 
     }
 
-    await addDoc(
-        claimsRef,
-        {
-            ...claim,
-            uid:user.uid,
-            status:"pending",
-            createdAt:
-            new Date().toISOString()
-        }
-    );
+    const createdAt =
+new Date().toISOString();
+
+const claimRef =
+await addDoc(
+claimsRef,
+{
+...claim,
+uid:user.uid,
+status:"pending",
+createdAt
+}
+);
+
+await addTimelineEvent(
+
+claimRef.id,
+
+"Claim Created",
+
+user.uid,
+
+{
+
+status:"pending"
+
+}
+
+);
+
+await logActivity({
+
+module:"claims",
+
+action:"Claim Created",
+
+targetId:claimRef.id,
+
+targetName:user.uid,
+
+metadata:claim
+
+});
 
 }
 
@@ -168,14 +215,46 @@ export async function updateClaimStatus(
 
     }
 
-    await updateDoc(
-        claimRef,
-        {
-            status,
-            updatedAt:
-            new Date().toISOString()
-        }
-    );
+    const updatedAt=
+new Date().toISOString();
+
+await updateDoc(
+
+claimRef,
+
+{
+
+status,
+
+updatedAt
+
+}
+
+);
+
+await addTimelineEvent(
+
+id,
+
+status==="approved"
+
+?
+
+"Claim Approved"
+
+:
+
+"Claim Rejected",
+
+"Administrator",
+
+{
+
+status
+
+}
+
+);
 
     await logActivity({
 
@@ -199,6 +278,263 @@ export async function updateClaimStatus(
     metadata:{
         status
     }
+
+});
+
+}
+
+export async function addTimelineEvent(
+
+claimId,
+
+action,
+
+performedBy="Admin",
+
+metadata={}
+
+){
+
+await addDoc(
+
+claimTimelineRef,
+
+{
+
+claimId,
+
+action,
+
+performedBy,
+
+metadata,
+
+createdAt:
+new Date().toISOString()
+
+}
+
+);
+
+}
+
+export async function getClaimTimeline(
+claimId
+){
+
+const snapshot=
+await getDocs(
+
+query(
+
+claimTimelineRef,
+
+where(
+"claimId",
+"==",
+claimId
+)
+
+)
+
+);
+
+return snapshot.docs
+.map(doc=>({
+
+id:doc.id,
+
+...doc.data()
+
+}))
+.sort(
+(a,b)=>
+
+new Date(a.createdAt)-
+new Date(b.createdAt)
+
+);
+
+}
+
+export async function getClaimNotes(
+claimId
+){
+
+const snapshot=
+await getDocs(
+
+query(
+
+claimNotesRef,
+
+where(
+"claimId",
+"==",
+claimId
+)
+
+)
+
+);
+
+return snapshot.docs
+.map(doc=>({
+
+id:doc.id,
+
+...doc.data()
+
+}))
+.sort(
+(a,b)=>
+
+new Date(b.createdAt)-
+new Date(a.createdAt)
+
+);
+
+}
+
+export async function addClaimNote(
+
+claimId,
+
+note,
+
+admin="Administrator"
+
+){
+
+if(
+!note.trim()
+){
+
+return;
+
+}
+
+await addDoc(
+
+claimNotesRef,
+
+{
+
+claimId,
+
+note,
+
+admin,
+
+createdAt:
+new Date().toISOString()
+
+}
+
+);
+
+await addTimelineEvent(
+
+claimId,
+
+"Note Added",
+
+admin,
+
+{
+
+note
+
+}
+
+);
+
+await logActivity({
+
+module:"claims",
+
+action:"Claim Note Added",
+
+targetId:claimId,
+
+targetName:claimId,
+
+metadata:{
+note,
+admin
+}
+
+});
+
+}
+
+export async function deleteClaimNote(
+id
+){
+
+const noteRef =
+doc(
+db,
+"claimNotes",
+id
+);
+
+const snapshot =
+await getDoc(
+noteRef
+);
+
+if(
+!snapshot.exists()
+){
+
+return;
+
+}
+
+const note =
+snapshot.data();
+
+await deleteDoc(
+noteRef
+);
+
+await addTimelineEvent(
+
+note.claimId,
+
+"Note Deleted",
+
+note.admin || "Administrator",
+
+{
+
+note:
+note.note
+
+}
+
+);
+
+await logActivity({
+
+module:"claims",
+
+action:"Claim Note Deleted",
+
+targetId:id,
+
+targetName:note.claimId,
+
+metadata:{
+
+claimId:
+note.claimId,
+
+note:
+note.note
+
+}
 
 });
 

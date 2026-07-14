@@ -46,7 +46,9 @@ message:data.message,
 
 status:"open",
 
-priority:"Medium",
+priority:
+data.priority ||
+"Medium",
 
 createdAt:
 new Date().toISOString()
@@ -54,6 +56,31 @@ new Date().toISOString()
 }
 
 );
+
+const snapshot=
+await getDocs(
+query(
+supportRef,
+where(
+"uid",
+"==",
+user.uid
+)
+)
+);
+
+const newest=
+snapshot.docs
+.at(-1);
+
+if(newest){
+
+await addSupportTimeline(
+newest.id,
+"Ticket Created"
+);
+
+}
 
 await logActivity({
 
@@ -140,6 +167,18 @@ new Date().toISOString()
 
 );
 
+await addSupportTimeline(
+
+id,
+
+status==="closed"
+?
+"Ticket Closed"
+:
+"Ticket Reopened"
+
+);
+
 await logActivity({
 
 module:"support",
@@ -183,6 +222,14 @@ assignedTo:admin
 
 );
 
+await addSupportTimeline(
+
+id,
+
+"Assigned to "+admin
+
+);
+
 await logActivity({
 
 module:"support",
@@ -196,5 +243,258 @@ admin
 }
 
 });
+
+}
+
+export async function
+updateSupportPriority(
+id,
+priority
+){
+
+await updateDoc(
+
+doc(
+db,
+"support",
+id
+),
+
+{
+
+priority,
+
+updatedAt:
+new Date().toISOString()
+
+}
+
+);
+
+await addSupportTimeline(
+
+id,
+
+"Priority changed to "+priority
+
+);
+
+await logActivity({
+
+module:"support",
+
+action:"Priority Changed",
+
+targetId:id,
+
+metadata:{
+priority
+}
+
+});
+
+}
+
+export async function
+addSupportReply(
+id,
+reply
+){
+
+const tickets=
+await getSupportTickets();
+
+const ticket=
+tickets.find(
+t=>t.id===id
+);
+
+if(!ticket){
+
+return;
+
+}
+
+const replies=
+ticket.replies||[];
+
+replies.push({
+
+message:reply,
+
+sender:
+auth.currentUser?.email||"Customer",
+
+createdAt:
+new Date().toISOString()
+
+});
+
+await updateDoc(
+
+doc(
+db,
+"support",
+id
+),
+
+{
+
+replies,
+
+updatedAt:
+new Date().toISOString()
+
+}
+
+);
+
+await addSupportTimeline(
+
+id,
+
+"Reply Added"
+
+);
+
+await logActivity({
+
+module:"support",
+
+action:"Reply Added",
+
+targetId:id
+
+});
+
+}
+
+export async function
+addSupportNote(
+id,
+note
+){
+
+const tickets=
+await getSupportTickets();
+
+const ticket=
+tickets.find(
+t=>t.id===id
+);
+
+if(!ticket){
+
+return;
+
+}
+
+const notes=
+ticket.adminNotes||[];
+
+notes.push({
+
+note,
+
+admin:
+auth.currentUser?.email||"Admin",
+
+createdAt:
+new Date().toISOString()
+
+});
+
+await updateDoc(
+
+doc(
+db,
+"support",
+id
+),
+
+{
+
+adminNotes:notes,
+
+updatedAt:
+new Date().toISOString()
+
+}
+
+);
+
+await addSupportTimeline(
+
+id,
+
+"Internal Note Added"
+
+);
+
+await logActivity({
+
+module:"support",
+
+action:"Admin Note Added",
+
+targetId:id
+
+});
+
+}
+
+export async function
+addSupportTimeline(
+id,
+event
+){
+
+const tickets=
+await getSupportTickets();
+
+const ticket=
+tickets.find(
+t=>t.id===id
+);
+
+if(!ticket){
+
+return;
+
+}
+
+const timeline=
+ticket.timeline||[];
+
+timeline.push({
+
+event,
+
+user:
+auth.currentUser?.email||"System",
+
+createdAt:
+new Date().toISOString()
+
+});
+
+await updateDoc(
+
+doc(
+db,
+"support",
+id
+),
+
+{
+
+timeline,
+
+updatedAt:
+new Date().toISOString()
+
+}
+
+);
 
 }
